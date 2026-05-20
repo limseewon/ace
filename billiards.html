@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <title>ACE 당구장 🎱</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap");
+
+      :root {
+        --green: #1a7a4a;
+        --green-light: #e8f5ee;
+        --green-mid: #2d9e62;
+        --felt: #0f5c35;
+        --gold: #c9922a;
+        --gold-light: #fdf3e3;
+        --red: #c0392b;
+        --red-light: #fdecea;
+        --bg: #f5f5f0;
+        --card: #ffffff;
+        --text: #1a1a1a;
+        --text-sub: #666;
+        --border: rgba(0, 0, 0, 0.1);
+        --radius: 16px;
+        --radius-sm: 10px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        padding-bottom: 80px;
+      }
+
+      /* HEADER */
+      .header {
+        background: var(--felt);
+        color: white;
+        padding: 20px 16px 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      }
+      .header-inner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .header-ball {
+        width: 44px;
+        height: 44px;
+        background:
+          radial-gradient(circle at 35% 35%, #fff8, transparent 60%), #e8c84a;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+        flex-shrink: 0;
+      }
+      .header-text h1 {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+      .header-text p {
+        font-size: 12px;
+        opacity: 0.75;
+        margin-top: 2px;
+      }
+
+      /* TABS */
+      .tabs {
+        display: flex;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 81px;
+        z-index: 99;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 13px 4px;
+        border: none;
+        background: none;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-sub);
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+      }
+      .tab-btn .ico {
+        font-size: 18px;
+      }
+      .tab-btn.active {
+        color: var(--felt);
+        border-bottom-color: var(--felt);
+      }
+
+      /* CONTENT */
+      .content {
+        padding: 16px;
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* SECTION LABEL */
+      .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        margin-top: 4px;
+      }
+
+      /* CARD */
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+      }
+
+      /* RANKING */
+      .rank-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+        animation: fadeIn 0.3s ease;
+      }
+      .rank-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .rank-item:first-child {
+        padding-top: 0;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .rank-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+        background: var(--bg);
+        color: var(--text-sub);
+      }
+      .rank-badge.r1 {
+        background: #fef3c7;
+        color: #92400e;
+        font-size: 20px;
+      }
+      .rank-badge.r2 {
+        background: #f3f4f6;
+        color: #4b5563;
+        font-size: 20px;
+      }
+      .rank-badge.r3 {
+        background: #fde8d8;
+        color: #7c3f00;
+        font-size: 20px;
+      }
+
+      .avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: 700;
+        flex-shrink: 0;
+        color: #fff;
+      }
+
+      .rank-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .rank-name {
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .rank-sub {
+        font-size: 12px;
+        color: var(--text-sub);
+        margin-top: 3px;
+      }
+
+      .rank-right {
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .win-rate {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--felt);
+      }
+      .win-rate-lbl {
+        font-size: 11px;
+        color: var(--text-sub);
+      }
+
+      .win-bar-wrap {
+        height: 4px;
+        background: #eee;
+        border-radius: 99px;
+        margin-top: 6px;
+        overflow: hidden;
+      }
+      .win-bar {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, var(--green-mid), var(--felt));
+        transition: width 0.5s ease;
+      }
+
+      /* FORM */
+      .form-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-sub);
+        margin-bottom: 6px;
+        display: block;
+      }
+      .form-group {
+        margin-bottom: 14px;
+      }
+      select,
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 15px;
+        color: var(--text);
+        background: var(--card);
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      select:focus,
+      input:focus {
+        border-color: var(--green-mid);
+      }
+      select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23999' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+      }
+
+      .score-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 8px;
+        align-items: center;
+      }
+      .score-vs {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-sub);
+        text-align: center;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 15px;
+        background: var(--felt);
+        color: white;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          transform 0.1s,
+          opacity 0.2s;
+        letter-spacing: -0.3px;
+      }
+      .btn-primary:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+      }
+
+      .btn-danger {
+        padding: 8px 12px;
+        background: none;
+        color: #ccc;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: color 0.2s;
+      }
+      .btn-danger:active {
+        color: var(--red);
+      }
+
+      /* HISTORY */
+      .match-item {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+        animation: fadeIn 0.3s ease;
+      }
+      .match-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .match-item:first-child {
+        padding-top: 0;
+      }
+      .match-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+      .match-winner {
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .match-vs {
+        font-size: 12px;
+        color: var(--text-sub);
+      }
+      .match-loser {
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+      .match-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .match-score-badge {
+        font-size: 13px;
+        font-weight: 700;
+        background: var(--green-light);
+        color: var(--felt);
+        padding: 3px 10px;
+        border-radius: 99px;
+      }
+      .match-time {
+        font-size: 12px;
+        color: #aaa;
+      }
+
+      /* PLAYERS */
+      .player-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .player-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .player-item:first-child {
+        padding-top: 0;
+      }
+      .player-name-big {
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .player-stat-small {
+        font-size: 12px;
+        color: var(--text-sub);
+        margin-top: 2px;
+      }
+
+      /* EMPTY */
+      .empty {
+        text-align: center;
+        padding: 32px 16px;
+        color: var(--text-sub);
+        font-size: 14px;
+        line-height: 1.8;
+      }
+      .empty .ico-big {
+        font-size: 36px;
+        margin-bottom: 8px;
+      }
+
+      /* TOAST */
+      .toast {
+        position: fixed;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(20, 20, 20, 0.9);
+        color: white;
+        padding: 11px 22px;
+        border-radius: 99px;
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 0;
+        transition: all 0.3s;
+        pointer-events: none;
+        white-space: nowrap;
+        z-index: 999;
+        backdrop-filter: blur(6px);
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* STAT MINI CARDS */
+      .stat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .stat-mini {
+        background: var(--bg);
+        border-radius: var(--radius-sm);
+        padding: 12px 8px;
+        text-align: center;
+      }
+      .stat-mini-val {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--felt);
+      }
+      .stat-mini-lbl {
+        font-size: 11px;
+        color: var(--text-sub);
+        margin-top: 2px;
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 14px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-inner">
+        <div class="header-ball">🎱</div>
+        <div class="header-text">
+          <h1>ACE 당구장</h1>
+          <p>랭킹 & 전적 기록</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('ranking')">
+        <span class="ico">🏆</span>랭킹
+      </button>
+      <button class="tab-btn" onclick="showTab('record')">
+        <span class="ico">✏️</span>전적입력
+      </button>
+      <button class="tab-btn" onclick="showTab('history')">
+        <span class="ico">📋</span>기록
+      </button>
+      <button class="tab-btn" onclick="showTab('players')">
+        <span class="ico">👥</span>선수관리
+      </button>
+    </div>
+
+    <div class="content">
+      <!-- 랭킹 탭 -->
+      <div class="tab-panel active" id="tab-ranking">
+        <div class="section-label">전체 순위</div>
+        <div class="card" id="ranking-list"></div>
+      </div>
+
+      <!-- 전적입력 탭 -->
+      <div class="tab-panel" id="tab-record">
+        <div class="section-label">경기 결과 입력</div>
+        <div class="card">
+          <div class="form-group">
+            <label class="form-label">🏆 승자</label>
+            <select id="winner-select">
+              <option value="">선수 선택</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">💀 패자</label>
+            <select id="loser-select">
+              <option value="">선수 선택</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">점수 (선택)</label>
+            <div class="score-row">
+              <input
+                type="number"
+                id="winner-score"
+                placeholder="승자"
+                min="0"
+                max="99" />
+              <span class="score-vs">:</span>
+              <input
+                type="number"
+                id="loser-score"
+                placeholder="패자"
+                min="0"
+                max="99" />
+            </div>
+          </div>
+          <button class="btn-primary" onclick="submitMatch()">
+            ✅ 전적 등록
+          </button>
+        </div>
+      </div>
+
+      <!-- 기록 탭 -->
+      <div class="tab-panel" id="tab-history">
+        <div class="section-label">최근 경기 기록</div>
+        <div class="card" id="history-list"></div>
+      </div>
+
+      <!-- 선수관리 탭 -->
+      <div class="tab-panel" id="tab-players">
+        <div class="section-label">선수 등록</div>
+        <div class="card">
+          <div class="form-group" style="margin-bottom: 12px">
+            <input
+              type="text"
+              id="player-name-input"
+              placeholder="선수 이름 입력"
+              maxlength="8" />
+          </div>
+          <button class="btn-primary" onclick="addPlayer()">+ 선수 추가</button>
+        </div>
+        <div class="section-label" style="margin-top: 16px">등록된 선수</div>
+        <div class="card" id="players-list"></div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const COLORS = [
+        "#1a7a4a",
+        "#2563eb",
+        "#d97706",
+        "#dc2626",
+        "#7c3aed",
+        "#0891b2",
+        "#be185d",
+        "#15803d",
+        "#9333ea",
+        "#b45309",
+      ];
+
+      let players = JSON.parse(localStorage.getItem("ace_players") || "[]");
+      let matches = JSON.parse(localStorage.getItem("ace_matches") || "[]");
+      let activeTab = "ranking";
+
+      function save() {
+        localStorage.setItem("ace_players", JSON.stringify(players));
+        localStorage.setItem("ace_matches", JSON.stringify(matches));
+      }
+
+      function showTab(tab) {
+        activeTab = tab;
+        document
+          .querySelectorAll(".tab-panel")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById("tab-" + tab).classList.add("active");
+        document
+          .querySelectorAll(".tab-btn")
+          [
+            ["ranking", "record", "history", "players"].indexOf(tab)
+          ].classList.add("active");
+        renderAll();
+      }
+
+      function getStats(id) {
+        const w = matches.filter((m) => m.winner === id).length;
+        const l = matches.filter((m) => m.loser === id).length;
+        const t = w + l;
+        return {
+          wins: w,
+          losses: l,
+          total: t,
+          rate: t > 0 ? Math.round((w / t) * 100) : 0,
+        };
+      }
+
+      function getRanked() {
+        return players
+          .map((p) => ({ ...p, ...getStats(p.id) }))
+          .sort((a, b) =>
+            b.rate !== a.rate
+              ? b.rate - a.rate
+              : b.wins - a.wins || a.losses - b.losses,
+          );
+      }
+
+      function initials(name) {
+        return name.length >= 2 ? name.slice(0, 2) : name;
+      }
+
+      function renderRanking() {
+        const el = document.getElementById("ranking-list");
+        const ranked = getRanked();
+        if (!ranked.length) {
+          el.innerHTML =
+            '<div class="empty"><div class="ico-big">🎱</div>선수를 등록하고<br>전적을 입력해보세요!</div>';
+          return;
+        }
+        const badges = ["🥇", "🥈", "🥉"];
+        el.innerHTML = ranked
+          .map((p, i) => {
+            const badgeClass = i < 3 ? `r${i + 1}` : "";
+            const badgeContent = i < 3 ? badges[i] : i + 1;
+            return `<div class="rank-item">
+      <div class="rank-badge ${badgeClass}">${badgeContent}</div>
+      <div class="avatar" style="background:${COLORS[p.colorIdx % COLORS.length]}">${initials(p.name)}</div>
+      <div class="rank-info">
+        <div class="rank-name">${p.name}</div>
+        <div class="rank-sub">${p.wins}승 ${p.losses}패 &nbsp;·&nbsp; 총 ${p.total}경기</div>
+        <div class="win-bar-wrap" style="margin-top:6px">
+          <div class="win-bar" style="width:${p.rate}%"></div>
+        </div>
+      </div>
+      <div class="rank-right">
+        <div class="win-rate">${p.rate}%</div>
+        <div class="win-rate-lbl">승률</div>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function renderRecord() {
+        const opts =
+          '<option value="">선수 선택</option>' +
+          players
+            .map((p) => `<option value="${p.id}">${p.name}</option>`)
+            .join("");
+        document.getElementById("winner-select").innerHTML = opts;
+        document.getElementById("loser-select").innerHTML = opts;
+      }
+
+      function renderHistory() {
+        const el = document.getElementById("history-list");
+        if (!matches.length) {
+          el.innerHTML =
+            '<div class="empty"><div class="ico-big">📋</div>아직 경기 기록이 없습니다.</div>';
+          return;
+        }
+        const recent = [...matches].reverse().slice(0, 50);
+        el.innerHTML = recent
+          .map((m) => {
+            const w = players.find((p) => p.id === m.winner);
+            const l = players.find((p) => p.id === m.loser);
+            if (!w || !l) return "";
+            const scoreBadge =
+              m.ws !== undefined && m.ls !== undefined
+                ? `<span class="match-score-badge">${m.ws} : ${m.ls}</span>`
+                : `<span class="match-score-badge">기록없음</span>`;
+            return `<div class="match-item">
+      <div class="match-head">
+        <span class="match-winner">${w.name}</span>
+        <span class="match-vs">이겼을 때</span>
+        <span class="match-loser">${l.name}</span>
+      </div>
+      <div class="match-foot">
+        ${scoreBadge}
+        <span class="match-time">${m.date}</span>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function renderPlayers() {
+        const el = document.getElementById("players-list");
+        if (!players.length) {
+          el.innerHTML =
+            '<div class="empty"><div class="ico-big">👥</div>등록된 선수가 없습니다.</div>';
+          return;
+        }
+        const ranked = getRanked();
+        const total = matches.length;
+        el.innerHTML =
+          `<div class="stat-grid">
+    <div class="stat-mini"><div class="stat-mini-val">${players.length}</div><div class="stat-mini-lbl">선수</div></div>
+    <div class="stat-mini"><div class="stat-mini-val">${total}</div><div class="stat-mini-lbl">총경기</div></div>
+    <div class="stat-mini"><div class="stat-mini-val">${ranked[0] ? ranked[0].name : "-"}</div><div class="stat-mini-lbl">1위</div></div>
+  </div>
+  <div class="divider"></div>` +
+          players
+            .map((p) => {
+              const s = getStats(p.id);
+              const rank = ranked.findIndex((r) => r.id === p.id) + 1;
+              return `<div class="player-item">
+      <div class="avatar" style="background:${COLORS[p.colorIdx % COLORS.length]};width:40px;height:40px;font-size:13px">${initials(p.name)}</div>
+      <div style="flex:1">
+        <div class="player-name-big">${p.name} <span style="font-size:12px;color:var(--text-sub);font-weight:400">${rank}위</span></div>
+        <div class="player-stat-small">${s.wins}승 ${s.losses}패 &nbsp;·&nbsp; 승률 ${s.rate}%</div>
+      </div>
+      <button class="btn-danger" onclick="removePlayer('${p.id}')">🗑</button>
+    </div>`;
+            })
+            .join("");
+      }
+
+      function renderAll() {
+        renderRanking();
+        if (activeTab === "record") renderRecord();
+        if (activeTab === "history") renderHistory();
+        if (activeTab === "players") renderPlayers();
+      }
+
+      function toast(msg) {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 2200);
+      }
+
+      function addPlayer() {
+        const inp = document.getElementById("player-name-input");
+        const name = inp.value.trim();
+        if (!name) {
+          toast("이름을 입력해주세요");
+          return;
+        }
+        if (players.find((p) => p.name === name)) {
+          toast("이미 등록된 이름이에요");
+          return;
+        }
+        players.push({
+          id: Date.now().toString(),
+          name,
+          colorIdx: players.length,
+        });
+        inp.value = "";
+        save();
+        renderAll();
+        toast(`✅ ${name} 선수 등록 완료!`);
+      }
+
+      function removePlayer(id) {
+        const p = players.find((x) => x.id === id);
+        if (!p) return;
+        if (
+          !confirm(`${p.name} 선수를 삭제할까요?\n관련 전적도 모두 삭제됩니다.`)
+        )
+          return;
+        players = players.filter((x) => x.id !== id);
+        matches = matches.filter((m) => m.winner !== id && m.loser !== id);
+        save();
+        renderAll();
+        toast(`${p.name} 삭제됨`);
+      }
+
+      function submitMatch() {
+        const wid = document.getElementById("winner-select").value;
+        const lid = document.getElementById("loser-select").value;
+        const ws = document.getElementById("winner-score").value;
+        const ls = document.getElementById("loser-score").value;
+        if (!wid || !lid) {
+          toast("승자와 패자를 선택해주세요");
+          return;
+        }
+        if (wid === lid) {
+          toast("같은 선수는 선택할 수 없어요");
+          return;
+        }
+        const now = new Date();
+        const dateStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+        const match = {
+          id: Date.now().toString(),
+          winner: wid,
+          loser: lid,
+          date: dateStr,
+        };
+        if (ws !== "" && ls !== "") {
+          match.ws = parseInt(ws);
+          match.ls = parseInt(ls);
+        }
+        matches.push(match);
+        document.getElementById("winner-select").value = "";
+        document.getElementById("loser-select").value = "";
+        document.getElementById("winner-score").value = "";
+        document.getElementById("loser-score").value = "";
+        save();
+        renderAll();
+        const wName = players.find((p) => p.id === wid)?.name;
+        toast(`🏆 ${wName} 승리 등록!`);
+      }
+
+      renderAll();
+    </script>
+  </body>
+</html>
