@@ -8,30 +8,27 @@
     <title>ACE 당구장 🎱</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap");
-
       :root {
-        --green: #1a7a4a;
-        --green-light: #e8f5ee;
-        --green-mid: #2d9e62;
         --felt: #0f5c35;
-        --gold: #c9922a;
+        --green-mid: #2d9e62;
+        --green-light: #e8f5ee;
+        --blue: #1d4ed8;
+        --blue-light: #eff6ff;
         --red: #c0392b;
         --bg: #f5f5f0;
-        --card: #ffffff;
+        --card: #fff;
         --text: #1a1a1a;
         --text-sub: #666;
         --border: rgba(0, 0, 0, 0.1);
         --radius: 16px;
         --radius-sm: 10px;
       }
-
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
         -webkit-tap-highlight-color: transparent;
       }
-
       body {
         font-family: "Noto Sans KR", sans-serif;
         background: var(--bg);
@@ -81,6 +78,12 @@
         font-size: 12px;
         opacity: 0.75;
         margin-top: 2px;
+      }
+      .lock-icon {
+        margin-left: auto;
+        font-size: 22px;
+        cursor: pointer;
+        padding: 4px 8px;
       }
 
       .tabs {
@@ -135,7 +138,6 @@
         margin-bottom: 10px;
         margin-top: 4px;
       }
-
       .card {
         background: var(--card);
         border-radius: var(--radius);
@@ -144,6 +146,80 @@
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
       }
 
+      .filter-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .filter-btn {
+        flex: 1;
+        padding: 9px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        background: var(--card);
+        color: var(--text-sub);
+        transition: all 0.2s;
+      }
+      .filter-btn.fa {
+        border-color: var(--felt);
+        color: var(--felt);
+        background: var(--green-light);
+      }
+      .filter-btn.f3 {
+        border-color: var(--felt);
+        color: var(--felt);
+        background: var(--green-light);
+      }
+      .filter-btn.f4 {
+        border-color: var(--blue);
+        color: var(--blue);
+        background: var(--blue-light);
+      }
+
+      .game-toggle {
+        display: flex;
+        background: var(--bg);
+        border-radius: var(--radius-sm);
+        padding: 4px;
+        margin-bottom: 16px;
+        gap: 4px;
+      }
+      .game-btn {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        background: none;
+        color: var(--text-sub);
+        transition: all 0.2s;
+      }
+      .game-btn.g3 {
+        background: var(--felt);
+        color: white;
+      }
+      .game-btn.g4 {
+        background: var(--blue);
+        color: white;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
       .rank-item {
         display: flex;
         align-items: center;
@@ -159,18 +235,6 @@
       .rank-item:first-child {
         padding-top: 0;
       }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(4px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
       .rank-badge {
         width: 32px;
         height: 32px;
@@ -186,20 +250,16 @@
       }
       .rank-badge.r1 {
         background: #fef3c7;
-        color: #92400e;
         font-size: 20px;
       }
       .rank-badge.r2 {
         background: #f3f4f6;
-        color: #4b5563;
         font-size: 20px;
       }
       .rank-badge.r3 {
         background: #fde8d8;
-        color: #7c3f00;
         font-size: 20px;
       }
-
       .avatar {
         width: 42px;
         height: 42px;
@@ -212,7 +272,6 @@
         flex-shrink: 0;
         color: #fff;
       }
-
       .rank-info {
         flex: 1;
         min-width: 0;
@@ -236,10 +295,8 @@
       .win-bar {
         height: 100%;
         border-radius: 99px;
-        background: linear-gradient(90deg, var(--green-mid), var(--felt));
         transition: width 0.5s ease;
       }
-
       .rank-right {
         text-align: right;
         flex-shrink: 0;
@@ -247,7 +304,6 @@
       .win-rate {
         font-size: 22px;
         font-weight: 700;
-        color: var(--felt);
       }
       .win-rate-lbl {
         font-size: 11px;
@@ -264,7 +320,6 @@
       .form-group {
         margin-bottom: 14px;
       }
-
       select,
       input[type="text"],
       input[type="number"] {
@@ -291,7 +346,6 @@
         background-position: right 14px center;
         padding-right: 36px;
       }
-
       .score-row {
         display: grid;
         grid-template-columns: 1fr auto 1fr;
@@ -319,7 +373,6 @@
         transition:
           transform 0.1s,
           opacity 0.2s;
-        letter-spacing: -0.3px;
       }
       .btn-primary:active {
         transform: scale(0.98);
@@ -329,7 +382,6 @@
         opacity: 0.5;
         cursor: not-allowed;
       }
-
       .btn-danger {
         padding: 8px 12px;
         background: none;
@@ -375,20 +427,36 @@
       }
       .match-foot {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
       }
-      .match-score-badge {
+      .score-badge {
         font-size: 13px;
         font-weight: 700;
-        background: var(--green-light);
-        color: var(--felt);
         padding: 3px 10px;
         border-radius: 99px;
+        background: var(--green-light);
+        color: var(--felt);
+      }
+      .game-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 99px;
+      }
+      .game-badge.g3 {
+        background: var(--green-light);
+        color: var(--felt);
+      }
+      .game-badge.g4 {
+        background: var(--blue-light);
+        color: var(--blue);
       }
       .match-time {
         font-size: 12px;
         color: #aaa;
+        margin-left: auto;
       }
 
       .player-item {
@@ -421,7 +489,6 @@
       .stat-mini-val {
         font-size: 20px;
         font-weight: 700;
-        color: var(--felt);
       }
       .stat-mini-lbl {
         font-size: 11px;
@@ -445,7 +512,6 @@
         font-size: 36px;
         margin-bottom: 8px;
       }
-
       .loading {
         text-align: center;
         padding: 32px 16px;
@@ -465,6 +531,19 @@
         to {
           transform: rotate(360deg);
         }
+      }
+
+      .locked-msg {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-sub);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .locked-msg .lico {
+        font-size: 24px;
+        flex-shrink: 0;
       }
 
       .toast {
@@ -488,6 +567,85 @@
         opacity: 1;
         transform: translateX(-50%) translateY(0);
       }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 200;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .overlay.show {
+        display: flex;
+      }
+      .pin-box {
+        background: white;
+        border-radius: var(--radius);
+        padding: 28px 24px;
+        width: 100%;
+        max-width: 320px;
+        text-align: center;
+      }
+      .pin-box h2 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .pin-box p {
+        font-size: 13px;
+        color: var(--text-sub);
+        margin-bottom: 20px;
+      }
+      .pin-dots {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        margin-bottom: 24px;
+      }
+      .pin-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        background: white;
+        transition: all 0.15s;
+      }
+      .pin-dot.filled {
+        background: var(--felt);
+        border-color: var(--felt);
+      }
+      .pin-dot.error {
+        background: var(--red);
+        border-color: var(--red);
+      }
+      .pin-pad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      .pin-key {
+        padding: 16px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 20px;
+        font-weight: 700;
+        cursor: pointer;
+        background: white;
+        color: var(--text);
+        transition: all 0.1s;
+      }
+      .pin-key:active {
+        background: var(--bg);
+        transform: scale(0.95);
+      }
+      .pin-key.sm {
+        font-size: 13px;
+        color: var(--text-sub);
+      }
     </style>
   </head>
   <body>
@@ -496,8 +654,11 @@
         <div class="header-ball">🎱</div>
         <div class="header-text">
           <h1>ACE 당구장</h1>
-          <p>랭킹 & 전적 기록</p>
+          <p>랭킹 &amp; 전적 기록</p>
         </div>
+        <span class="lock-icon" id="header-lock" onclick="toggleLock()"
+          >🔒</span
+        >
       </div>
     </div>
 
@@ -518,7 +679,20 @@
 
     <div class="content">
       <div class="tab-panel active" id="tab-ranking">
-        <div class="section-label">전체 순위</div>
+        <div class="filter-row">
+          <button
+            class="filter-btn fa"
+            id="rf-all"
+            onclick="setRankFilter('all')">
+            전체
+          </button>
+          <button class="filter-btn" id="rf-3" onclick="setRankFilter('3구')">
+            🟢 3구
+          </button>
+          <button class="filter-btn" id="rf-4" onclick="setRankFilter('4구')">
+            🔵 4구
+          </button>
+        </div>
         <div class="card" id="ranking-list">
           <div class="loading">
             <div class="spinner"></div>
@@ -528,46 +702,81 @@
       </div>
 
       <div class="tab-panel" id="tab-record">
-        <div class="section-label">경기 결과 입력</div>
-        <div class="card">
-          <div class="form-group">
-            <label class="form-label">🏆 승자</label>
-            <select id="winner-select">
-              <option value="">선수 선택</option>
-            </select>
+        <div id="record-locked" class="card" style="display: none">
+          <div class="locked-msg">
+            <span class="lico">🔒</span
+            ><span
+              >관리자만 입력할 수 있습니다.<br />우측 상단 자물쇠를 눌러 잠금
+              해제하세요.</span
+            >
           </div>
-          <div class="form-group">
-            <label class="form-label">💀 패자</label>
-            <select id="loser-select">
-              <option value="">선수 선택</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">점수 (선택)</label>
-            <div class="score-row">
-              <input
-                type="number"
-                id="winner-score"
-                placeholder="승자"
-                min="0"
-                max="99" />
-              <span class="score-vs">:</span>
-              <input
-                type="number"
-                id="loser-score"
-                placeholder="패자"
-                min="0"
-                max="99" />
+        </div>
+        <div id="record-form">
+          <div class="section-label">경기 결과 입력</div>
+          <div class="card">
+            <div class="game-toggle">
+              <button
+                class="game-btn g3"
+                id="gb-3"
+                onclick="setGameType('3구')">
+                🟢 3구
+              </button>
+              <button class="game-btn" id="gb-4" onclick="setGameType('4구')">
+                🔵 4구
+              </button>
             </div>
+            <div class="form-group">
+              <label class="form-label">🏆 승자</label>
+              <select id="winner-select">
+                <option value="">선수 선택</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">💀 패자</label>
+              <select id="loser-select">
+                <option value="">선수 선택</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">점수 (선택)</label>
+              <div class="score-row">
+                <input
+                  type="number"
+                  id="winner-score"
+                  placeholder="승자"
+                  min="0"
+                  max="999" />
+                <span class="score-vs">:</span>
+                <input
+                  type="number"
+                  id="loser-score"
+                  placeholder="패자"
+                  min="0"
+                  max="999" />
+              </div>
+            </div>
+            <button class="btn-primary" id="submit-btn" onclick="submitMatch()">
+              ✅ 전적 등록
+            </button>
           </div>
-          <button class="btn-primary" id="submit-btn" onclick="submitMatch()">
-            ✅ 전적 등록
-          </button>
         </div>
       </div>
 
       <div class="tab-panel" id="tab-history">
-        <div class="section-label">최근 경기 기록</div>
+        <div class="filter-row">
+          <button
+            class="filter-btn fa"
+            id="hf-all"
+            onclick="setHistFilter('all')">
+            전체
+          </button>
+          <button class="filter-btn" id="hf-3" onclick="setHistFilter('3구')">
+            🟢 3구
+          </button>
+          <button class="filter-btn" id="hf-4" onclick="setHistFilter('4구')">
+            🔵 4구
+          </button>
+        </div>
         <div class="card" id="history-list">
           <div class="loading">
             <div class="spinner"></div>
@@ -577,20 +786,34 @@
       </div>
 
       <div class="tab-panel" id="tab-players">
-        <div class="section-label">선수 등록</div>
-        <div class="card">
-          <div class="form-group" style="margin-bottom: 12px">
-            <input
-              type="text"
-              id="player-name-input"
-              placeholder="선수 이름 입력"
-              maxlength="8" />
+        <div id="players-locked" class="card" style="display: none">
+          <div class="locked-msg">
+            <span class="lico">🔒</span
+            ><span
+              >관리자만 선수를 추가/삭제할 수 있습니다.<br />우측 상단 자물쇠를
+              눌러 잠금 해제하세요.</span
+            >
           </div>
-          <button class="btn-primary" id="add-player-btn" onclick="addPlayer()">
-            + 선수 추가
-          </button>
         </div>
-        <div class="section-label" style="margin-top: 16px">등록된 선수</div>
+        <div id="players-form">
+          <div class="section-label">선수 등록</div>
+          <div class="card">
+            <div class="form-group" style="margin-bottom: 12px">
+              <input
+                type="text"
+                id="player-name-input"
+                placeholder="선수 이름 입력"
+                maxlength="8" />
+            </div>
+            <button
+              class="btn-primary"
+              id="add-player-btn"
+              onclick="addPlayer()">
+              + 선수 추가
+            </button>
+          </div>
+        </div>
+        <div class="section-label" style="margin-top: 4px">등록된 선수</div>
         <div class="card" id="players-list">
           <div class="loading">
             <div class="spinner"></div>
@@ -600,13 +823,40 @@
       </div>
     </div>
 
+    <div class="overlay" id="pin-overlay">
+      <div class="pin-box">
+        <h2>🔐 관리자 인증</h2>
+        <p>4자리 비밀번호를 입력하세요</p>
+        <div class="pin-dots">
+          <div class="pin-dot" id="d0"></div>
+          <div class="pin-dot" id="d1"></div>
+          <div class="pin-dot" id="d2"></div>
+          <div class="pin-dot" id="d3"></div>
+        </div>
+        <div class="pin-pad">
+          <button class="pin-key" onclick="pk('1')">1</button>
+          <button class="pin-key" onclick="pk('2')">2</button>
+          <button class="pin-key" onclick="pk('3')">3</button>
+          <button class="pin-key" onclick="pk('4')">4</button>
+          <button class="pin-key" onclick="pk('5')">5</button>
+          <button class="pin-key" onclick="pk('6')">6</button>
+          <button class="pin-key" onclick="pk('7')">7</button>
+          <button class="pin-key" onclick="pk('8')">8</button>
+          <button class="pin-key" onclick="pk('9')">9</button>
+          <button class="pin-key sm" onclick="closePin()">취소</button>
+          <button class="pin-key" onclick="pk('0')">0</button>
+          <button class="pin-key sm" onclick="pdel()">⌫</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
-      const SUPABASE_URL = "https://qtdbdqzawznedjlvycqp.supabase.co";
-      const SUPABASE_KEY =
+      const SB_URL = "https://qtdbdqzawznedjlvycqp.supabase.co";
+      const SB_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0ZGJkcXphd3puZWRqbHZ5Y3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTYzMzUsImV4cCI6MjA5NDgzMjMzNX0.v3fU8XSk_q-lTJum6u4JCKS3e2tgBmgpih6JaNJnrNo";
-
+      const PW = "4416";
       const COLORS = [
         "#1a7a4a",
         "#2563eb",
@@ -619,46 +869,47 @@
         "#9333ea",
         "#b45309",
       ];
-
-      const headers = {
+      const H = {
         "Content-Type": "application/json",
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
+        apikey: SB_KEY,
+        Authorization: "Bearer " + SB_KEY,
         Prefer: "return=representation",
       };
 
-      let players = [];
-      let matches = [];
-      let activeTab = "ranking";
+      let players = [],
+        matches = [],
+        activeTab = "ranking",
+        rankFilter = "all",
+        histFilter = "all",
+        gameType = "3구",
+        isAdmin = false,
+        pin = "";
 
-      async function api(path, method = "GET", body = null, extra = {}) {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      async function api(path, method = "GET", body = null) {
+        const r = await fetch(SB_URL + "/rest/v1/" + path, {
           method,
-          headers: { ...headers, ...extra },
+          headers: H,
           body: body ? JSON.stringify(body) : null,
         });
-        if (!res.ok) {
-          const err = await res.text();
-          throw new Error(err);
-        }
-        const text = await res.text();
-        return text ? JSON.parse(text) : null;
+        if (!r.ok) throw new Error(await r.text());
+        const t = await r.text();
+        return t ? JSON.parse(t) : null;
+      }
+      async function loadAll() {
+        [players, matches] = await Promise.all([
+          api("players?select=*&order=color_idx.asc"),
+          api(
+            "matches?select=*,winner:winner_id(id,name,color_idx),loser:loser_id(id,name,color_idx)&order=played_at.desc&limit=100",
+          ),
+        ]);
       }
 
-      async function loadPlayers() {
-        players = await api("players?select=*&order=color_idx.asc");
-      }
-
-      async function loadMatches() {
-        matches = await api(
-          "matches?select=*,winner:winner_id(id,name,color_idx),loser:loser_id(id,name,color_idx)&order=played_at.desc&limit=50",
-        );
-      }
-
-      function getStats(id) {
-        const w = matches.filter((m) => m.winner_id === id).length;
-        const l = matches.filter((m) => m.loser_id === id).length;
-        const t = w + l;
+      function stats(id, f = "all") {
+        const ms =
+          f === "all" ? matches : matches.filter((m) => m.game_type === f);
+        const w = ms.filter((m) => m.winner_id === id).length,
+          l = ms.filter((m) => m.loser_id === id).length,
+          t = w + l;
         return {
           wins: w,
           losses: l,
@@ -666,18 +917,16 @@
           rate: t > 0 ? Math.round((w / t) * 100) : 0,
         };
       }
-
-      function getRanked() {
+      function ranked(f = "all") {
         return players
-          .map((p) => ({ ...p, ...getStats(p.id) }))
+          .map((p) => ({ ...p, ...stats(p.id, f) }))
           .sort((a, b) =>
             b.rate !== a.rate
               ? b.rate - a.rate
               : b.wins - a.wins || a.losses - b.losses,
           );
       }
-
-      function initials(name) {
+      function ini(name) {
         return name.length >= 2 ? name.slice(0, 2) : name;
       }
 
@@ -685,10 +934,10 @@
         activeTab = tab;
         document
           .querySelectorAll(".tab-panel")
-          .forEach((el) => el.classList.remove("active"));
+          .forEach((e) => e.classList.remove("active"));
         document
           .querySelectorAll(".tab-btn")
-          .forEach((el) => el.classList.remove("active"));
+          .forEach((e) => e.classList.remove("active"));
         document.getElementById("tab-" + tab).classList.add("active");
         document
           .querySelectorAll(".tab-btn")
@@ -698,33 +947,131 @@
         renderAll();
       }
 
+      function setRankFilter(f) {
+        rankFilter = f;
+        ["rf-all", "rf-3", "rf-4"].forEach(
+          (id) => (document.getElementById(id).className = "filter-btn"),
+        );
+        document.getElementById(
+          f === "all" ? "rf-all" : f === "3구" ? "rf-3" : "rf-4",
+        ).className = "filter-btn " + (f === "4구" ? "f4" : "fa");
+        renderRanking();
+      }
+      function setHistFilter(f) {
+        histFilter = f;
+        ["hf-all", "hf-3", "hf-4"].forEach(
+          (id) => (document.getElementById(id).className = "filter-btn"),
+        );
+        document.getElementById(
+          f === "all" ? "hf-all" : f === "3구" ? "hf-3" : "hf-4",
+        ).className = "filter-btn " + (f === "4구" ? "f4" : "fa");
+        renderHistory();
+      }
+      function setGameType(t) {
+        gameType = t;
+        document.getElementById("gb-3").className =
+          "game-btn" + (t === "3구" ? " g3" : "");
+        document.getElementById("gb-4").className =
+          "game-btn" + (t === "4구" ? " g4" : "");
+      }
+
+      /* PIN */
+      function toggleLock() {
+        if (isAdmin) {
+          isAdmin = false;
+          document.getElementById("header-lock").textContent = "🔒";
+          toast("🔒 관리자 잠금");
+          renderAdminUI();
+        } else {
+          pin = "";
+          updateDots();
+          document.getElementById("pin-overlay").classList.add("show");
+        }
+      }
+      function closePin() {
+        document.getElementById("pin-overlay").classList.remove("show");
+        pin = "";
+        updateDots();
+      }
+      function pk(n) {
+        if (pin.length >= 4) return;
+        pin += n;
+        updateDots();
+        if (pin.length === 4) setTimeout(checkPin, 150);
+      }
+      function pdel() {
+        pin = pin.slice(0, -1);
+        updateDots();
+      }
+      function updateDots(err = false) {
+        for (let i = 0; i < 4; i++) {
+          const d = document.getElementById("d" + i);
+          d.className = "pin-dot";
+          if (err) d.classList.add("error");
+          else if (i < pin.length) d.classList.add("filled");
+        }
+      }
+      function checkPin() {
+        if (pin === PW) {
+          isAdmin = true;
+          document.getElementById("header-lock").textContent = "🔓";
+          closePin();
+          toast("🔓 관리자 모드 활성화");
+          renderAdminUI();
+        } else {
+          updateDots(true);
+          setTimeout(() => {
+            pin = "";
+            updateDots();
+          }, 800);
+        }
+      }
+
+      function renderAdminUI() {
+        const admin = isAdmin;
+        document.getElementById("record-locked").style.display = admin
+          ? "none"
+          : "block";
+        document.getElementById("record-form").style.display = admin
+          ? "block"
+          : "none";
+        document.getElementById("players-locked").style.display = admin
+          ? "none"
+          : "block";
+        document.getElementById("players-form").style.display = admin
+          ? "block"
+          : "none";
+        renderPlayers();
+      }
+
+      /* RENDER */
       function renderRanking() {
-        const el = document.getElementById("ranking-list");
-        const ranked = getRanked();
-        if (!ranked.length) {
+        const el = document.getElementById("ranking-list"),
+          r = ranked(rankFilter);
+        if (!r.length) {
           el.innerHTML =
             '<div class="empty"><div class="ico-big">🎱</div>선수를 등록하고<br>전적을 입력해보세요!</div>';
           return;
         }
-        const badges = ["🥇", "🥈", "🥉"];
-        el.innerHTML = ranked
-          .map((p, i) => {
-            return `<div class="rank-item">
-      <div class="rank-badge ${i < 3 ? "r" + (i + 1) : ""}">${i < 3 ? badges[i] : i + 1}</div>
-      <div class="avatar" style="background:${COLORS[p.color_idx % COLORS.length]}">${initials(p.name)}</div>
-      <div class="rank-info">
-        <div class="rank-name">${p.name}</div>
-        <div class="rank-sub">${p.wins}승 ${p.losses}패 &nbsp;·&nbsp; 총 ${p.total}경기</div>
-        <div class="win-bar-wrap">
-          <div class="win-bar" style="width:${p.rate}%"></div>
-        </div>
-      </div>
-      <div class="rank-right">
-        <div class="win-rate">${p.rate}%</div>
-        <div class="win-rate-lbl">승률</div>
-      </div>
-    </div>`;
-          })
+        const bd = ["🥇", "🥈", "🥉"],
+          is4 = rankFilter === "4구";
+        const barColor = is4
+          ? "linear-gradient(90deg,#60a5fa,#1d4ed8)"
+          : "linear-gradient(90deg,#2d9e62,#0f5c35)";
+        const rc = is4 ? "var(--blue)" : "var(--felt)";
+        el.innerHTML = r
+          .map(
+            (p, i) => `<div class="rank-item">
+    <div class="rank-badge ${i < 3 ? "r" + (i + 1) : ""}">${i < 3 ? bd[i] : i + 1}</div>
+    <div class="avatar" style="background:${COLORS[p.color_idx % COLORS.length]}">${ini(p.name)}</div>
+    <div class="rank-info">
+      <div class="rank-name">${p.name}</div>
+      <div class="rank-sub">${p.wins}승 ${p.losses}패 · 총 ${p.total}경기</div>
+      <div class="win-bar-wrap"><div class="win-bar" style="width:${p.rate}%;background:${barColor}"></div></div>
+    </div>
+    <div class="rank-right"><div class="win-rate" style="color:${rc}">${p.rate}%</div><div class="win-rate-lbl">승률</div></div>
+  </div>`,
+          )
           .join("");
       }
 
@@ -736,34 +1083,33 @@
             .join("");
         document.getElementById("winner-select").innerHTML = opts;
         document.getElementById("loser-select").innerHTML = opts;
+        renderAdminUI();
       }
 
       function renderHistory() {
         const el = document.getElementById("history-list");
-        if (!matches.length) {
+        const ms =
+          histFilter === "all"
+            ? matches
+            : matches.filter((m) => m.game_type === histFilter);
+        if (!ms.length) {
           el.innerHTML =
             '<div class="empty"><div class="ico-big">📋</div>아직 경기 기록이 없습니다.</div>';
           return;
         }
-        el.innerHTML = matches
+        el.innerHTML = ms
           .map((m) => {
             if (!m.winner || !m.loser) return "";
-            const scoreBadge =
+            const sb =
               m.winner_score !== null && m.loser_score !== null
-                ? `<span class="match-score-badge">${m.winner_score} : ${m.loser_score}</span>`
-                : `<span class="match-score-badge" style="background:#f5f5f0;color:#999">점수없음</span>`;
-            const date = new Date(m.played_at);
-            const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+                ? `<span class="score-badge">${m.winner_score}:${m.loser_score}</span>`
+                : `<span class="score-badge" style="background:#f5f5f0;color:#999">점수없음</span>`;
+            const gt = m.game_type || "3구";
+            const d = new Date(m.played_at),
+              ds = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
             return `<div class="match-item">
-      <div class="match-head">
-        <span class="match-winner">${m.winner.name}</span>
-        <span class="match-vs">승</span>
-        <span class="match-loser">${m.loser.name}</span>
-      </div>
-      <div class="match-foot">
-        ${scoreBadge}
-        <span class="match-time">${dateStr}</span>
-      </div>
+      <div class="match-head"><span class="match-winner">${m.winner.name}</span><span class="match-vs">승</span><span class="match-loser">${m.loser.name}</span></div>
+      <div class="match-foot">${sb}<span class="game-badge ${gt === "4구" ? "g4" : "g3"}">${gt}</span><span class="match-time">${ds}</span></div>
     </div>`;
           })
           .join("");
@@ -776,24 +1122,30 @@
             '<div class="empty"><div class="ico-big">👥</div>등록된 선수가 없습니다.</div>';
           return;
         }
-        const ranked = getRanked();
+        const r = ranked("all"),
+          t3 = matches.filter((m) => m.game_type === "3구").length,
+          t4 = matches.filter((m) => m.game_type === "4구").length;
         el.innerHTML =
           `<div class="stat-grid">
-    <div class="stat-mini"><div class="stat-mini-val">${players.length}</div><div class="stat-mini-lbl">선수</div></div>
-    <div class="stat-mini"><div class="stat-mini-val">${matches.length}</div><div class="stat-mini-lbl">총경기</div></div>
-    <div class="stat-mini"><div class="stat-mini-val">${ranked[0] ? ranked[0].name : "-"}</div><div class="stat-mini-lbl">1위</div></div>
+    <div class="stat-mini"><div class="stat-mini-val" style="color:var(--felt)">${players.length}</div><div class="stat-mini-lbl">선수</div></div>
+    <div class="stat-mini"><div class="stat-mini-val" style="color:var(--felt)">${t3}</div><div class="stat-mini-lbl">3구경기</div></div>
+    <div class="stat-mini"><div class="stat-mini-val" style="color:var(--blue)">${t4}</div><div class="stat-mini-lbl">4구경기</div></div>
   </div><div class="divider"></div>` +
           players
             .map((p) => {
-              const s = getStats(p.id);
-              const rank = ranked.findIndex((r) => r.id === p.id) + 1;
+              const s3 = stats(p.id, "3구"),
+                s4 = stats(p.id, "4구"),
+                rk = r.findIndex((x) => x.id === p.id) + 1;
+              const del = isAdmin
+                ? `<button class="btn-danger" onclick="removePlayer('${p.id}','${p.name}')">🗑</button>`
+                : "";
               return `<div class="player-item">
-      <div class="avatar" style="background:${COLORS[p.color_idx % COLORS.length]};width:40px;height:40px;font-size:13px">${initials(p.name)}</div>
-      <div style="flex:1">
-        <div style="font-size:15px;font-weight:700">${p.name} <span style="font-size:12px;color:var(--text-sub);font-weight:400">${rank}위</span></div>
-        <div style="font-size:12px;color:var(--text-sub);margin-top:2px">${s.wins}승 ${s.losses}패 &nbsp;·&nbsp; 승률 ${s.rate}%</div>
-      </div>
-      <button class="btn-danger" onclick="removePlayer('${p.id}', '${p.name}')">🗑</button>
+      <div class="avatar" style="background:${COLORS[p.color_idx % COLORS.length]};width:40px;height:40px;font-size:13px">${ini(p.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:700">${p.name} <span style="font-size:12px;color:var(--text-sub);font-weight:400">${rk}위</span></div>
+        <div style="font-size:12px;color:var(--felt)">3구 ${s3.wins}승 ${s3.losses}패 (${s3.rate}%)</div>
+        <div style="font-size:12px;color:var(--blue)">4구 ${s4.wins}승 ${s4.losses}패 (${s4.rate}%)</div>
+      </div>${del}
     </div>`;
             })
             .join("");
@@ -814,8 +1166,12 @@
       }
 
       async function addPlayer() {
-        const inp = document.getElementById("player-name-input");
-        const name = inp.value.trim();
+        if (!isAdmin) {
+          toast("🔒 관리자만 추가할 수 있어요");
+          return;
+        }
+        const inp = document.getElementById("player-name-input"),
+          name = inp.value.trim();
         if (!name) {
           toast("이름을 입력해주세요");
           return;
@@ -827,14 +1183,14 @@
         const btn = document.getElementById("add-player-btn");
         btn.disabled = true;
         try {
-          const result = await api("players", "POST", {
+          const res = await api("players", "POST", {
             name,
             color_idx: players.length,
           });
-          players.push(result[0]);
+          players.push(res[0]);
           inp.value = "";
           renderAll();
-          toast(`✅ ${name} 선수 등록 완료!`);
+          toast(`✅ ${name} 선수 등록!`);
         } catch (e) {
           toast("등록 실패. 다시 시도해주세요.");
         } finally {
@@ -843,6 +1199,10 @@
       }
 
       async function removePlayer(id, name) {
+        if (!isAdmin) {
+          toast("🔒 관리자만 삭제할 수 있어요");
+          return;
+        }
         if (
           !confirm(`${name} 선수를 삭제할까요?\n관련 전적도 모두 삭제됩니다.`)
         )
@@ -861,10 +1221,14 @@
       }
 
       async function submitMatch() {
-        const wid = document.getElementById("winner-select").value;
-        const lid = document.getElementById("loser-select").value;
-        const ws = document.getElementById("winner-score").value;
-        const ls = document.getElementById("loser-score").value;
+        if (!isAdmin) {
+          toast("🔒 관리자만 입력할 수 있어요");
+          return;
+        }
+        const wid = document.getElementById("winner-select").value,
+          lid = document.getElementById("loser-select").value;
+        const ws = document.getElementById("winner-score").value,
+          ls = document.getElementById("loser-score").value;
         if (!wid || !lid) {
           toast("승자와 패자를 선택해주세요");
           return;
@@ -877,20 +1241,22 @@
         btn.disabled = true;
         btn.textContent = "저장 중...";
         try {
-          const body = { winner_id: wid, loser_id: lid };
+          const body = { winner_id: wid, loser_id: lid, game_type: gameType };
           if (ws !== "" && ls !== "") {
             body.winner_score = parseInt(ws);
             body.loser_score = parseInt(ls);
           }
           await api("matches", "POST", body);
-          await loadMatches();
-          document.getElementById("winner-select").value = "";
-          document.getElementById("loser-select").value = "";
-          document.getElementById("winner-score").value = "";
-          document.getElementById("loser-score").value = "";
+          await loadAll();
+          [
+            "winner-select",
+            "loser-select",
+            "winner-score",
+            "loser-score",
+          ].forEach((id) => (document.getElementById(id).value = ""));
           renderAll();
-          const wName = players.find((p) => p.id === wid)?.name;
-          toast(`🏆 ${wName} 승리 등록!`);
+          const wn = players.find((p) => p.id === wid)?.name;
+          toast(`🏆 [${gameType}] ${wn} 승리 등록!`);
         } catch (e) {
           toast("등록 실패. 다시 시도해주세요.");
         } finally {
@@ -900,15 +1266,15 @@
       }
 
       async function init() {
+        renderAdminUI();
         try {
-          await Promise.all([loadPlayers(), loadMatches()]);
+          await loadAll();
           renderAll();
         } catch (e) {
           document.getElementById("ranking-list").innerHTML =
             '<div class="empty">⚠️ 연결 실패<br>잠시 후 다시 시도해주세요.</div>';
         }
       }
-
       init();
     </script>
   </body>
