@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ACE 당구장 🎱</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap");
@@ -15,9 +15,7 @@
         --green-mid: #2d9e62;
         --felt: #0f5c35;
         --gold: #c9922a;
-        --gold-light: #fdf3e3;
         --red: #c0392b;
-        --red-light: #fdecea;
         --bg: #f5f5f0;
         --card: #ffffff;
         --text: #1a1a1a;
@@ -42,7 +40,6 @@
         padding-bottom: 80px;
       }
 
-      /* HEADER */
       .header {
         background: var(--felt);
         color: white;
@@ -61,7 +58,12 @@
         width: 44px;
         height: 44px;
         background:
-          radial-gradient(circle at 35% 35%, #fff8, transparent 60%), #e8c84a;
+          radial-gradient(
+            circle at 35% 35%,
+            rgba(255, 255, 255, 0.5),
+            transparent 60%
+          ),
+          #e8c84a;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -81,7 +83,6 @@
         margin-top: 2px;
       }
 
-      /* TABS */
       .tabs {
         display: flex;
         background: #fff;
@@ -115,7 +116,6 @@
         border-bottom-color: var(--felt);
       }
 
-      /* CONTENT */
       .content {
         padding: 16px;
       }
@@ -126,7 +126,6 @@
         display: block;
       }
 
-      /* SECTION LABEL */
       .section-label {
         font-size: 11px;
         font-weight: 700;
@@ -137,7 +136,6 @@
         margin-top: 4px;
       }
 
-      /* CARD */
       .card {
         background: var(--card);
         border-radius: var(--radius);
@@ -146,7 +144,6 @@
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
       }
 
-      /* RANKING */
       .rank-item {
         display: flex;
         align-items: center;
@@ -229,6 +226,19 @@
         color: var(--text-sub);
         margin-top: 3px;
       }
+      .win-bar-wrap {
+        height: 4px;
+        background: #eee;
+        border-radius: 99px;
+        margin-top: 6px;
+        overflow: hidden;
+      }
+      .win-bar {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, var(--green-mid), var(--felt));
+        transition: width 0.5s ease;
+      }
 
       .rank-right {
         text-align: right;
@@ -244,21 +254,6 @@
         color: var(--text-sub);
       }
 
-      .win-bar-wrap {
-        height: 4px;
-        background: #eee;
-        border-radius: 99px;
-        margin-top: 6px;
-        overflow: hidden;
-      }
-      .win-bar {
-        height: 100%;
-        border-radius: 99px;
-        background: linear-gradient(90deg, var(--green-mid), var(--felt));
-        transition: width 0.5s ease;
-      }
-
-      /* FORM */
       .form-label {
         font-size: 13px;
         font-weight: 500;
@@ -269,6 +264,7 @@
       .form-group {
         margin-bottom: 14px;
       }
+
       select,
       input[type="text"],
       input[type="number"] {
@@ -329,6 +325,10 @@
         transform: scale(0.98);
         opacity: 0.9;
       }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
       .btn-danger {
         padding: 8px 12px;
@@ -338,13 +338,11 @@
         font-size: 18px;
         cursor: pointer;
         border-radius: 8px;
-        transition: color 0.2s;
       }
       .btn-danger:active {
         color: var(--red);
       }
 
-      /* HISTORY */
       .match-item {
         padding: 12px 0;
         border-bottom: 1px solid var(--border);
@@ -393,7 +391,6 @@
         color: #aaa;
       }
 
-      /* PLAYERS */
       .player-item {
         display: flex;
         align-items: center;
@@ -408,54 +405,7 @@
       .player-item:first-child {
         padding-top: 0;
       }
-      .player-name-big {
-        font-size: 15px;
-        font-weight: 700;
-      }
-      .player-stat-small {
-        font-size: 12px;
-        color: var(--text-sub);
-        margin-top: 2px;
-      }
 
-      /* EMPTY */
-      .empty {
-        text-align: center;
-        padding: 32px 16px;
-        color: var(--text-sub);
-        font-size: 14px;
-        line-height: 1.8;
-      }
-      .empty .ico-big {
-        font-size: 36px;
-        margin-bottom: 8px;
-      }
-
-      /* TOAST */
-      .toast {
-        position: fixed;
-        bottom: 90px;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: rgba(20, 20, 20, 0.9);
-        color: white;
-        padding: 11px 22px;
-        border-radius: 99px;
-        font-size: 14px;
-        font-weight: 500;
-        opacity: 0;
-        transition: all 0.3s;
-        pointer-events: none;
-        white-space: nowrap;
-        z-index: 999;
-        backdrop-filter: blur(6px);
-      }
-      .toast.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
-
-      /* STAT MINI CARDS */
       .stat-grid {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
@@ -469,7 +419,7 @@
         text-align: center;
       }
       .stat-mini-val {
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 700;
         color: var(--felt);
       }
@@ -478,11 +428,65 @@
         color: var(--text-sub);
         margin-top: 2px;
       }
-
       .divider {
         height: 1px;
         background: var(--border);
         margin: 14px 0;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 32px 16px;
+        color: var(--text-sub);
+        font-size: 14px;
+        line-height: 1.8;
+      }
+      .empty .ico-big {
+        font-size: 36px;
+        margin-bottom: 8px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 32px 16px;
+        color: var(--text-sub);
+        font-size: 14px;
+      }
+      .spinner {
+        width: 28px;
+        height: 28px;
+        border: 3px solid #eee;
+        border-top-color: var(--felt);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        margin: 0 auto 12px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(20, 20, 20, 0.92);
+        color: white;
+        padding: 11px 22px;
+        border-radius: 99px;
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 0;
+        transition: all 0.3s;
+        pointer-events: none;
+        white-space: nowrap;
+        z-index: 999;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
       }
     </style>
   </head>
@@ -513,13 +517,16 @@
     </div>
 
     <div class="content">
-      <!-- 랭킹 탭 -->
       <div class="tab-panel active" id="tab-ranking">
         <div class="section-label">전체 순위</div>
-        <div class="card" id="ranking-list"></div>
+        <div class="card" id="ranking-list">
+          <div class="loading">
+            <div class="spinner"></div>
+            불러오는 중...
+          </div>
+        </div>
       </div>
 
-      <!-- 전적입력 탭 -->
       <div class="tab-panel" id="tab-record">
         <div class="section-label">경기 결과 입력</div>
         <div class="card">
@@ -553,19 +560,22 @@
                 max="99" />
             </div>
           </div>
-          <button class="btn-primary" onclick="submitMatch()">
+          <button class="btn-primary" id="submit-btn" onclick="submitMatch()">
             ✅ 전적 등록
           </button>
         </div>
       </div>
 
-      <!-- 기록 탭 -->
       <div class="tab-panel" id="tab-history">
         <div class="section-label">최근 경기 기록</div>
-        <div class="card" id="history-list"></div>
+        <div class="card" id="history-list">
+          <div class="loading">
+            <div class="spinner"></div>
+            불러오는 중...
+          </div>
+        </div>
       </div>
 
-      <!-- 선수관리 탭 -->
       <div class="tab-panel" id="tab-players">
         <div class="section-label">선수 등록</div>
         <div class="card">
@@ -576,16 +586,27 @@
               placeholder="선수 이름 입력"
               maxlength="8" />
           </div>
-          <button class="btn-primary" onclick="addPlayer()">+ 선수 추가</button>
+          <button class="btn-primary" id="add-player-btn" onclick="addPlayer()">
+            + 선수 추가
+          </button>
         </div>
         <div class="section-label" style="margin-top: 16px">등록된 선수</div>
-        <div class="card" id="players-list"></div>
+        <div class="card" id="players-list">
+          <div class="loading">
+            <div class="spinner"></div>
+            불러오는 중...
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="toast" id="toast"></div>
 
     <script>
+      const SUPABASE_URL = "https://qtdbdqzawznedjlvycqp.supabase.co";
+      const SUPABASE_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0ZGJkcXphd3puZWRqbHZ5Y3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTYzMzUsImV4cCI6MjA5NDgzMjMzNX0.v3fU8XSk_q-lTJum6u4JCKS3e2tgBmgpih6JaNJnrNo";
+
       const COLORS = [
         "#1a7a4a",
         "#2563eb",
@@ -599,35 +620,44 @@
         "#b45309",
       ];
 
-      let players = JSON.parse(localStorage.getItem("ace_players") || "[]");
-      let matches = JSON.parse(localStorage.getItem("ace_matches") || "[]");
+      const headers = {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        Prefer: "return=representation",
+      };
+
+      let players = [];
+      let matches = [];
       let activeTab = "ranking";
 
-      function save() {
-        localStorage.setItem("ace_players", JSON.stringify(players));
-        localStorage.setItem("ace_matches", JSON.stringify(matches));
+      async function api(path, method = "GET", body = null, extra = {}) {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+          method,
+          headers: { ...headers, ...extra },
+          body: body ? JSON.stringify(body) : null,
+        });
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(err);
+        }
+        const text = await res.text();
+        return text ? JSON.parse(text) : null;
       }
 
-      function showTab(tab) {
-        activeTab = tab;
-        document
-          .querySelectorAll(".tab-panel")
-          .forEach((el) => el.classList.remove("active"));
-        document
-          .querySelectorAll(".tab-btn")
-          .forEach((el) => el.classList.remove("active"));
-        document.getElementById("tab-" + tab).classList.add("active");
-        document
-          .querySelectorAll(".tab-btn")
-          [
-            ["ranking", "record", "history", "players"].indexOf(tab)
-          ].classList.add("active");
-        renderAll();
+      async function loadPlayers() {
+        players = await api("players?select=*&order=color_idx.asc");
+      }
+
+      async function loadMatches() {
+        matches = await api(
+          "matches?select=*,winner:winner_id(id,name,color_idx),loser:loser_id(id,name,color_idx)&order=played_at.desc&limit=50",
+        );
       }
 
       function getStats(id) {
-        const w = matches.filter((m) => m.winner === id).length;
-        const l = matches.filter((m) => m.loser === id).length;
+        const w = matches.filter((m) => m.winner_id === id).length;
+        const l = matches.filter((m) => m.loser_id === id).length;
         const t = w + l;
         return {
           wins: w,
@@ -651,6 +681,23 @@
         return name.length >= 2 ? name.slice(0, 2) : name;
       }
 
+      function showTab(tab) {
+        activeTab = tab;
+        document
+          .querySelectorAll(".tab-panel")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById("tab-" + tab).classList.add("active");
+        document
+          .querySelectorAll(".tab-btn")
+          [
+            ["ranking", "record", "history", "players"].indexOf(tab)
+          ].classList.add("active");
+        renderAll();
+      }
+
       function renderRanking() {
         const el = document.getElementById("ranking-list");
         const ranked = getRanked();
@@ -662,15 +709,13 @@
         const badges = ["🥇", "🥈", "🥉"];
         el.innerHTML = ranked
           .map((p, i) => {
-            const badgeClass = i < 3 ? `r${i + 1}` : "";
-            const badgeContent = i < 3 ? badges[i] : i + 1;
             return `<div class="rank-item">
-      <div class="rank-badge ${badgeClass}">${badgeContent}</div>
-      <div class="avatar" style="background:${COLORS[p.colorIdx % COLORS.length]}">${initials(p.name)}</div>
+      <div class="rank-badge ${i < 3 ? "r" + (i + 1) : ""}">${i < 3 ? badges[i] : i + 1}</div>
+      <div class="avatar" style="background:${COLORS[p.color_idx % COLORS.length]}">${initials(p.name)}</div>
       <div class="rank-info">
         <div class="rank-name">${p.name}</div>
         <div class="rank-sub">${p.wins}승 ${p.losses}패 &nbsp;·&nbsp; 총 ${p.total}경기</div>
-        <div class="win-bar-wrap" style="margin-top:6px">
+        <div class="win-bar-wrap">
           <div class="win-bar" style="width:${p.rate}%"></div>
         </div>
       </div>
@@ -700,25 +745,24 @@
             '<div class="empty"><div class="ico-big">📋</div>아직 경기 기록이 없습니다.</div>';
           return;
         }
-        const recent = [...matches].reverse().slice(0, 50);
-        el.innerHTML = recent
+        el.innerHTML = matches
           .map((m) => {
-            const w = players.find((p) => p.id === m.winner);
-            const l = players.find((p) => p.id === m.loser);
-            if (!w || !l) return "";
+            if (!m.winner || !m.loser) return "";
             const scoreBadge =
-              m.ws !== undefined && m.ls !== undefined
-                ? `<span class="match-score-badge">${m.ws} : ${m.ls}</span>`
-                : `<span class="match-score-badge">기록없음</span>`;
+              m.winner_score !== null && m.loser_score !== null
+                ? `<span class="match-score-badge">${m.winner_score} : ${m.loser_score}</span>`
+                : `<span class="match-score-badge" style="background:#f5f5f0;color:#999">점수없음</span>`;
+            const date = new Date(m.played_at);
+            const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
             return `<div class="match-item">
       <div class="match-head">
-        <span class="match-winner">${w.name}</span>
-        <span class="match-vs">이겼을 때</span>
-        <span class="match-loser">${l.name}</span>
+        <span class="match-winner">${m.winner.name}</span>
+        <span class="match-vs">승</span>
+        <span class="match-loser">${m.loser.name}</span>
       </div>
       <div class="match-foot">
         ${scoreBadge}
-        <span class="match-time">${m.date}</span>
+        <span class="match-time">${dateStr}</span>
       </div>
     </div>`;
           })
@@ -733,25 +777,23 @@
           return;
         }
         const ranked = getRanked();
-        const total = matches.length;
         el.innerHTML =
           `<div class="stat-grid">
     <div class="stat-mini"><div class="stat-mini-val">${players.length}</div><div class="stat-mini-lbl">선수</div></div>
-    <div class="stat-mini"><div class="stat-mini-val">${total}</div><div class="stat-mini-lbl">총경기</div></div>
+    <div class="stat-mini"><div class="stat-mini-val">${matches.length}</div><div class="stat-mini-lbl">총경기</div></div>
     <div class="stat-mini"><div class="stat-mini-val">${ranked[0] ? ranked[0].name : "-"}</div><div class="stat-mini-lbl">1위</div></div>
-  </div>
-  <div class="divider"></div>` +
+  </div><div class="divider"></div>` +
           players
             .map((p) => {
               const s = getStats(p.id);
               const rank = ranked.findIndex((r) => r.id === p.id) + 1;
               return `<div class="player-item">
-      <div class="avatar" style="background:${COLORS[p.colorIdx % COLORS.length]};width:40px;height:40px;font-size:13px">${initials(p.name)}</div>
+      <div class="avatar" style="background:${COLORS[p.color_idx % COLORS.length]};width:40px;height:40px;font-size:13px">${initials(p.name)}</div>
       <div style="flex:1">
-        <div class="player-name-big">${p.name} <span style="font-size:12px;color:var(--text-sub);font-weight:400">${rank}위</span></div>
-        <div class="player-stat-small">${s.wins}승 ${s.losses}패 &nbsp;·&nbsp; 승률 ${s.rate}%</div>
+        <div style="font-size:15px;font-weight:700">${p.name} <span style="font-size:12px;color:var(--text-sub);font-weight:400">${rank}위</span></div>
+        <div style="font-size:12px;color:var(--text-sub);margin-top:2px">${s.wins}승 ${s.losses}패 &nbsp;·&nbsp; 승률 ${s.rate}%</div>
       </div>
-      <button class="btn-danger" onclick="removePlayer('${p.id}')">🗑</button>
+      <button class="btn-danger" onclick="removePlayer('${p.id}', '${p.name}')">🗑</button>
     </div>`;
             })
             .join("");
@@ -768,10 +810,10 @@
         const el = document.getElementById("toast");
         el.textContent = msg;
         el.classList.add("show");
-        setTimeout(() => el.classList.remove("show"), 2200);
+        setTimeout(() => el.classList.remove("show"), 2500);
       }
 
-      function addPlayer() {
+      async function addPlayer() {
         const inp = document.getElementById("player-name-input");
         const name = inp.value.trim();
         if (!name) {
@@ -782,32 +824,43 @@
           toast("이미 등록된 이름이에요");
           return;
         }
-        players.push({
-          id: Date.now().toString(),
-          name,
-          colorIdx: players.length,
-        });
-        inp.value = "";
-        save();
-        renderAll();
-        toast(`✅ ${name} 선수 등록 완료!`);
+        const btn = document.getElementById("add-player-btn");
+        btn.disabled = true;
+        try {
+          const result = await api("players", "POST", {
+            name,
+            color_idx: players.length,
+          });
+          players.push(result[0]);
+          inp.value = "";
+          renderAll();
+          toast(`✅ ${name} 선수 등록 완료!`);
+        } catch (e) {
+          toast("등록 실패. 다시 시도해주세요.");
+        } finally {
+          btn.disabled = false;
+        }
       }
 
-      function removePlayer(id) {
-        const p = players.find((x) => x.id === id);
-        if (!p) return;
+      async function removePlayer(id, name) {
         if (
-          !confirm(`${p.name} 선수를 삭제할까요?\n관련 전적도 모두 삭제됩니다.`)
+          !confirm(`${name} 선수를 삭제할까요?\n관련 전적도 모두 삭제됩니다.`)
         )
           return;
-        players = players.filter((x) => x.id !== id);
-        matches = matches.filter((m) => m.winner !== id && m.loser !== id);
-        save();
-        renderAll();
-        toast(`${p.name} 삭제됨`);
+        try {
+          await api(`players?id=eq.${id}`, "DELETE");
+          players = players.filter((p) => p.id !== id);
+          matches = matches.filter(
+            (m) => m.winner_id !== id && m.loser_id !== id,
+          );
+          renderAll();
+          toast(`${name} 삭제됨`);
+        } catch (e) {
+          toast("삭제 실패. 다시 시도해주세요.");
+        }
       }
 
-      function submitMatch() {
+      async function submitMatch() {
         const wid = document.getElementById("winner-select").value;
         const lid = document.getElementById("loser-select").value;
         const ws = document.getElementById("winner-score").value;
@@ -820,30 +873,43 @@
           toast("같은 선수는 선택할 수 없어요");
           return;
         }
-        const now = new Date();
-        const dateStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-        const match = {
-          id: Date.now().toString(),
-          winner: wid,
-          loser: lid,
-          date: dateStr,
-        };
-        if (ws !== "" && ls !== "") {
-          match.ws = parseInt(ws);
-          match.ls = parseInt(ls);
+        const btn = document.getElementById("submit-btn");
+        btn.disabled = true;
+        btn.textContent = "저장 중...";
+        try {
+          const body = { winner_id: wid, loser_id: lid };
+          if (ws !== "" && ls !== "") {
+            body.winner_score = parseInt(ws);
+            body.loser_score = parseInt(ls);
+          }
+          await api("matches", "POST", body);
+          await loadMatches();
+          document.getElementById("winner-select").value = "";
+          document.getElementById("loser-select").value = "";
+          document.getElementById("winner-score").value = "";
+          document.getElementById("loser-score").value = "";
+          renderAll();
+          const wName = players.find((p) => p.id === wid)?.name;
+          toast(`🏆 ${wName} 승리 등록!`);
+        } catch (e) {
+          toast("등록 실패. 다시 시도해주세요.");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "✅ 전적 등록";
         }
-        matches.push(match);
-        document.getElementById("winner-select").value = "";
-        document.getElementById("loser-select").value = "";
-        document.getElementById("winner-score").value = "";
-        document.getElementById("loser-score").value = "";
-        save();
-        renderAll();
-        const wName = players.find((p) => p.id === wid)?.name;
-        toast(`🏆 ${wName} 승리 등록!`);
       }
 
-      renderAll();
+      async function init() {
+        try {
+          await Promise.all([loadPlayers(), loadMatches()]);
+          renderAll();
+        } catch (e) {
+          document.getElementById("ranking-list").innerHTML =
+            '<div class="empty">⚠️ 연결 실패<br>잠시 후 다시 시도해주세요.</div>';
+        }
+      }
+
+      init();
     </script>
   </body>
 </html>
