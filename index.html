@@ -147,6 +147,7 @@
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
       }
 
+      /* 필터 행 */
       .filter-row {
         display: flex;
         gap: 8px;
@@ -170,15 +171,64 @@
         color: var(--felt);
         background: var(--green-light);
       }
-      .filter-btn.f3 {
-        border-color: var(--felt);
-        color: var(--felt);
-        background: var(--green-light);
-      }
       .filter-btn.f4 {
         border-color: var(--blue);
         color: var(--blue);
         background: var(--blue-light);
+      }
+
+      /* 기간 필터 스크롤 */
+      .period-scroll {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .period-scroll::-webkit-scrollbar {
+        display: none;
+      }
+      .period-btn {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 99px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        background: var(--card);
+        color: var(--text-sub);
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .period-btn.active {
+        border-color: var(--felt);
+        color: var(--felt);
+        background: var(--green-light);
+      }
+
+      /* 기간 정보 배너 */
+      .period-banner {
+        background: var(--green-light);
+        border-radius: var(--radius-sm);
+        padding: 10px 14px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .period-banner span {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--felt);
+      }
+      .period-banner .period-sub {
+        font-size: 12px;
+        color: var(--green-mid);
+        margin-left: auto;
       }
 
       .game-toggle {
@@ -221,6 +271,7 @@
           transform: translateY(0);
         }
       }
+
       .rank-item {
         display: flex;
         align-items: center;
@@ -310,6 +361,10 @@
         font-size: 11px;
         color: var(--text-sub);
       }
+      .no-game-badge {
+        font-size: 11px;
+        color: #bbb;
+      }
 
       .form-label {
         font-size: 13px;
@@ -397,7 +452,6 @@
         color: var(--red);
       }
 
-      /* 기록 아이템 */
       .match-item {
         padding: 12px 0;
         border-bottom: 1px solid var(--border);
@@ -413,7 +467,6 @@
       .match-top {
         display: flex;
         align-items: center;
-        gap: 0;
       }
       .match-info {
         flex: 1;
@@ -468,6 +521,23 @@
       .match-time {
         font-size: 12px;
         color: #aaa;
+      }
+      .del-match-btn {
+        padding: 10px;
+        background: none;
+        color: #ddd;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 8px;
+        flex-shrink: 0;
+        transition: color 0.2s;
+      }
+      .del-match-btn:active {
+        color: var(--red);
+      }
+      .del-match-btn.hidden {
+        display: none;
       }
 
       .player-item {
@@ -657,25 +727,6 @@
         font-size: 13px;
         color: var(--text-sub);
       }
-
-      /* 기록 삭제 버튼 - 스와이프 느낌 대신 우측에 작게 */
-      .del-match-btn {
-        padding: 10px 10px;
-        background: none;
-        color: #ddd;
-        border: none;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 8px;
-        flex-shrink: 0;
-        transition: color 0.2s;
-      }
-      .del-match-btn:active {
-        color: var(--red);
-      }
-      .del-match-btn.hidden {
-        display: none;
-      }
     </style>
   </head>
   <body>
@@ -708,7 +759,24 @@
     </div>
 
     <div class="content">
+      <!-- 랭킹 탭 -->
       <div class="tab-panel active" id="tab-ranking">
+        <!-- 기간 필터 -->
+        <div class="period-scroll">
+          <button
+            class="period-btn active"
+            id="pb-all"
+            onclick="setPeriod('all')">
+            🏆 전체
+          </button>
+          <button class="period-btn" id="pb-month" onclick="setPeriod('month')">
+            📅 이번달
+          </button>
+          <button class="period-btn" id="pb-week" onclick="setPeriod('week')">
+            🔥 이번주
+          </button>
+        </div>
+        <!-- 게임 종류 필터 -->
         <div class="filter-row">
           <button
             class="filter-btn fa"
@@ -723,6 +791,11 @@
             🔵 4구
           </button>
         </div>
+        <!-- 기간 배너 -->
+        <div class="period-banner" id="period-banner" style="display: none">
+          <span id="period-banner-text"></span>
+          <span class="period-sub" id="period-banner-sub"></span>
+        </div>
         <div class="card" id="ranking-list">
           <div class="loading">
             <div class="spinner"></div>
@@ -731,6 +804,7 @@
         </div>
       </div>
 
+      <!-- 전적입력 탭 -->
       <div class="tab-panel" id="tab-record">
         <div id="record-locked" class="card" style="display: none">
           <div class="locked-msg">
@@ -792,6 +866,7 @@
         </div>
       </div>
 
+      <!-- 기록 탭 -->
       <div class="tab-panel" id="tab-history">
         <div class="filter-row">
           <button
@@ -815,6 +890,7 @@
         </div>
       </div>
 
+      <!-- 선수관리 탭 -->
       <div class="tab-panel" id="tab-players">
         <div id="players-locked" class="card" style="display: none">
           <div class="locked-msg">
@@ -853,6 +929,7 @@
       </div>
     </div>
 
+    <!-- PIN 오버레이 -->
     <div class="overlay" id="pin-overlay">
       <div class="pin-box">
         <h2>🔐 관리자 인증</h2>
@@ -913,7 +990,8 @@
         histFilter = "all",
         gameType = "3구",
         isAdmin = false,
-        pin = "";
+        pin = "",
+        period = "all";
 
       async function api(path, method = "GET", body = null) {
         const r = await fetch(SB_URL + "/rest/v1/" + path, {
@@ -925,21 +1003,70 @@
         const t = await r.text();
         return t ? JSON.parse(t) : null;
       }
-
       async function loadAll() {
         [players, matches] = await Promise.all([
           api("players?select=*&order=color_idx.asc"),
           api(
-            "matches?select=*,winner:winner_id(id,name,color_idx),loser:loser_id(id,name,color_idx)&order=played_at.desc&limit=200",
+            "matches?select=*,winner:winner_id(id,name,color_idx),loser:loser_id(id,name,color_idx)&order=played_at.desc&limit=500",
           ),
         ]);
       }
 
-      function stats(id, f = "all") {
-        const ms =
-          f === "all" ? matches : matches.filter((m) => m.game_type === f);
-        const w = ms.filter((m) => m.winner_id === id).length,
-          l = ms.filter((m) => m.loser_id === id).length,
+      /* 기간 필터링 */
+      function getPeriodBounds() {
+        const now = new Date();
+        if (period === "week") {
+          const day = now.getDay(); // 0=일
+          const mon = new Date(now);
+          mon.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+          mon.setHours(0, 0, 0, 0);
+          return { start: mon, end: now };
+        }
+        if (period === "month") {
+          const start = new Date(now.getFullYear(), now.getMonth(), 1);
+          return { start, end: now };
+        }
+        return null;
+      }
+
+      function filterByPeriod(ms) {
+        const bounds = getPeriodBounds();
+        if (!bounds) return ms;
+        return ms.filter((m) => {
+          const d = new Date(m.played_at);
+          return d >= bounds.start && d <= bounds.end;
+        });
+      }
+
+      function getPeriodLabel() {
+        const now = new Date();
+        if (period === "week") {
+          const day = now.getDay();
+          const mon = new Date(now);
+          mon.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+          mon.setHours(0, 0, 0, 0);
+          const sun = new Date(mon);
+          sun.setDate(mon.getDate() + 6);
+          return {
+            title: "🔥 이번주 랭킹",
+            sub: `${mon.getMonth() + 1}/${mon.getDate()} ~ ${sun.getMonth() + 1}/${sun.getDate()}`,
+          };
+        }
+        if (period === "month") {
+          return {
+            title: `📅 ${now.getMonth() + 1}월 랭킹`,
+            sub: `${now.getFullYear()}년 ${now.getMonth() + 1}월`,
+          };
+        }
+        return null;
+      }
+
+      function stats(id, f = "all", ms = null) {
+        const src = ms !== null ? ms : matches;
+        const filtered =
+          f === "all" ? src : src.filter((m) => m.game_type === f);
+        const w = filtered.filter((m) => m.winner_id === id).length,
+          l = filtered.filter((m) => m.loser_id === id).length,
           t = w + l;
         return {
           wins: w,
@@ -948,15 +1075,18 @@
           rate: t > 0 ? Math.round((w / t) * 100) : 0,
         };
       }
-      function ranked(f = "all") {
+
+      function ranked(f = "all", periodMs = null) {
+        const src = periodMs !== null ? periodMs : matches;
         return players
-          .map((p) => ({ ...p, ...stats(p.id, f) }))
+          .map((p) => ({ ...p, ...stats(p.id, f, src) }))
           .sort((a, b) =>
             b.rate !== a.rate
               ? b.rate - a.rate
               : b.wins - a.wins || a.losses - b.losses,
           );
       }
+
       function ini(name) {
         return name.length >= 2 ? name.slice(0, 2) : name;
       }
@@ -978,6 +1108,20 @@
         renderAll();
       }
 
+      /* 기간 선택 */
+      function setPeriod(p) {
+        period = p;
+        ["pb-all", "pb-month", "pb-week"].forEach((id) =>
+          document.getElementById(id).classList.remove("active"),
+        );
+        document
+          .getElementById(
+            p === "all" ? "pb-all" : p === "month" ? "pb-month" : "pb-week",
+          )
+          .classList.add("active");
+        renderRanking();
+      }
+
       function setRankFilter(f) {
         rankFilter = f;
         ["rf-all", "rf-3", "rf-4"].forEach(
@@ -988,6 +1132,7 @@
         ).className = "filter-btn " + (f === "4구" ? "f4" : "fa");
         renderRanking();
       }
+
       function setHistFilter(f) {
         histFilter = f;
         ["hf-all", "hf-3", "hf-4"].forEach(
@@ -998,6 +1143,7 @@
         ).className = "filter-btn " + (f === "4구" ? "f4" : "fa");
         renderHistory();
       }
+
       function setGameType(t) {
         gameType = t;
         document.getElementById("gb-3").className =
@@ -1077,20 +1223,40 @@
 
       /* RENDER */
       function renderRanking() {
-        const el = document.getElementById("ranking-list"),
-          r = ranked(rankFilter);
+        const el = document.getElementById("ranking-list");
+        const periodMs = filterByPeriod(matches);
+        const r = ranked(rankFilter, periodMs);
+
+        // 배너 표시
+        const banner = document.getElementById("period-banner");
+        const label = getPeriodLabel();
+        if (label) {
+          banner.style.display = "flex";
+          document.getElementById("period-banner-text").textContent =
+            label.title;
+          document.getElementById("period-banner-sub").textContent = label.sub;
+        } else {
+          banner.style.display = "none";
+        }
+
         if (!r.length) {
           el.innerHTML =
-            '<div class="empty"><div class="ico-big">🎱</div>선수를 등록하고<br>전적을 입력해보세요!</div>';
+            '<div class="empty"><div class="ico-big">🎱</div>선수를 등록해주세요!</div>';
           return;
         }
-        const bd = ["🥇", "🥈", "🥉"],
-          is4 = rankFilter === "4구";
+
+        // 해당 기간에 경기한 선수 / 안 한 선수 분리
+        const active = r.filter((p) => p.total > 0);
+        const inactive = r.filter((p) => p.total === 0);
+
+        const bd = ["🥇", "🥈", "🥉"];
+        const is4 = rankFilter === "4구";
         const barColor = is4
           ? "linear-gradient(90deg,#60a5fa,#1d4ed8)"
           : "linear-gradient(90deg,#2d9e62,#0f5c35)";
         const rc = is4 ? "var(--blue)" : "var(--felt)";
-        el.innerHTML = r
+
+        let html = active
           .map(
             (p, i) => `<div class="rank-item">
     <div class="rank-badge ${i < 3 ? "r" + (i + 1) : ""}">${i < 3 ? bd[i] : i + 1}</div>
@@ -1104,6 +1270,38 @@
   </div>`,
           )
           .join("");
+
+        // 경기 없는 선수 → 구분선 + 회색
+        if (inactive.length && period !== "all") {
+          html += `<div style="display:flex;align-items:center;gap:8px;padding:10px 0 4px;"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:11px;color:#bbb;white-space:nowrap">이 기간 경기 없음</span><div style="flex:1;height:1px;background:var(--border)"></div></div>`;
+          html += inactive
+            .map(
+              (p) => `<div class="rank-item" style="opacity:0.45">
+      <div class="rank-badge">-</div>
+      <div class="avatar" style="background:${COLORS[p.color_idx % COLORS.length]}">${ini(p.name)}</div>
+      <div class="rank-info"><div class="rank-name">${p.name}</div><div class="rank-sub">경기 없음</div></div>
+      <div class="rank-right"><div class="win-rate" style="color:#bbb">-</div><div class="win-rate-lbl">승률</div></div>
+    </div>`,
+            )
+            .join("");
+        } else if (period === "all") {
+          html += inactive
+            .map((p, i) => {
+              const idx = active.length + i;
+              return `<div class="rank-item">
+        <div class="rank-badge">${idx + 1}</div>
+        <div class="avatar" style="background:${COLORS[p.color_idx % COLORS.length]}">${ini(p.name)}</div>
+        <div class="rank-info"><div class="rank-name">${p.name}</div><div class="rank-sub">0승 0패 · 총 0경기</div>
+        <div class="win-bar-wrap"><div class="win-bar" style="width:0%"></div></div></div>
+        <div class="rank-right"><div class="win-rate" style="color:var(--felt)">0%</div><div class="win-rate-lbl">승률</div></div>
+      </div>`;
+            })
+            .join("");
+        }
+
+        el.innerHTML =
+          html ||
+          '<div class="empty"><div class="ico-big">📊</div>이 기간에 경기 기록이 없습니다.</div>';
       }
 
       function renderRecord() {
@@ -1139,21 +1337,13 @@
             const d = new Date(m.played_at),
               ds = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
             const delBtn = isAdmin
-              ? `<button class="del-match-btn" onclick="deleteMatch('${m.id}','${m.winner.name}','${m.loser.name}')" title="기록 삭제">🗑</button>`
+              ? `<button class="del-match-btn" onclick="deleteMatch('${m.id}','${m.winner.name}','${m.loser.name}')">🗑</button>`
               : `<button class="del-match-btn hidden"></button>`;
             return `<div class="match-item" id="match-${m.id}">
       <div class="match-top">
         <div class="match-info">
-          <div class="match-head">
-            <span class="match-winner">${m.winner.name}</span>
-            <span class="match-vs">승</span>
-            <span class="match-loser">${m.loser.name}</span>
-          </div>
-          <div class="match-foot">
-            ${sb}
-            <span class="game-badge ${gt === "4구" ? "g4" : "g3"}">${gt}</span>
-            <span class="match-time">${ds}</span>
-          </div>
+          <div class="match-head"><span class="match-winner">${m.winner.name}</span><span class="match-vs">승</span><span class="match-loser">${m.loser.name}</span></div>
+          <div class="match-foot">${sb}<span class="game-badge ${gt === "4구" ? "g4" : "g3"}">${gt}</span><span class="match-time">${ds}</span></div>
         </div>
         ${delBtn}
       </div>
@@ -1212,15 +1402,14 @@
         setTimeout(() => el.classList.remove("show"), 2500);
       }
 
-      /* 기록 삭제 */
-      async function deleteMatch(id, winnerName, loserName) {
+      async function deleteMatch(id, wn, ln) {
         if (!isAdmin) {
           toast("🔒 관리자만 삭제할 수 있어요");
           return;
         }
         if (
           !confirm(
-            `이 경기 기록을 삭제할까요?\n${winnerName} 승 vs ${loserName}\n\n승률과 순위가 자동으로 업데이트됩니다.`,
+            `이 경기 기록을 삭제할까요?\n${wn} 승 vs ${ln}\n\n승률과 순위가 자동으로 업데이트됩니다.`,
           )
         )
           return;
