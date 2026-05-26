@@ -727,6 +727,196 @@
         font-size: 13px;
         color: var(--text-sub);
       }
+
+      /* 갤러리 */
+      .gallery-upload-area {
+        display: block;
+        border: 2px dashed var(--border);
+        border-radius: var(--radius-sm);
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        margin-bottom: 12px;
+        transition: border-color 0.2s;
+      }
+      .gallery-upload-area:active {
+        border-color: var(--green-mid);
+      }
+      #photo-preview {
+        width: 100%;
+        border-radius: var(--radius-sm);
+        margin-bottom: 12px;
+        display: none;
+        max-height: 200px;
+        object-fit: cover;
+      }
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .gallery-item {
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        background: var(--bg);
+        cursor: pointer;
+        position: relative;
+      }
+      .gallery-item img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        display: block;
+      }
+      .gallery-caption {
+        padding: 6px 8px;
+        font-size: 12px;
+        color: var(--text-sub);
+        line-height: 1.3;
+      }
+      .gallery-comment-count {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: 99px;
+      }
+
+      /* 사진 상세 오버레이 */
+      .photo-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 300;
+        flex-direction: column;
+      }
+      .photo-overlay.show {
+        display: flex;
+      }
+      .photo-overlay-top {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        background: #000;
+        flex-shrink: 0;
+      }
+      .photo-overlay-close {
+        font-size: 22px;
+        cursor: pointer;
+        padding: 4px;
+        background: none;
+        border: none;
+        color: white;
+        line-height: 1;
+      }
+      .photo-overlay-del {
+        margin-left: auto;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 4px 8px;
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        display: none;
+      }
+      .photo-overlay-img-wrap {
+        background: #111;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-height: 45vh;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .photo-overlay-img-wrap img {
+        max-width: 100%;
+        max-height: 45vh;
+        object-fit: contain;
+      }
+      .photo-overlay-body {
+        flex: 1;
+        background: white;
+        border-radius: 20px 20px 0 0;
+        padding: 20px 16px 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      .photo-overlay-caption-text {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+        color: var(--text);
+      }
+      .comments-section-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .comment-item {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .comment-item:last-child {
+        border-bottom: none;
+      }
+      .comment-author {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--felt);
+        margin-bottom: 3px;
+      }
+      .comment-text {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--text);
+      }
+      .comment-time {
+        font-size: 11px;
+        color: #aaa;
+        margin-top: 3px;
+      }
+      .comment-input-area {
+        border-top: 1px solid var(--border);
+        padding: 12px 0 16px;
+        margin-top: auto;
+        background: white;
+        flex-shrink: 0;
+      }
+      .comment-name-input {
+        margin-bottom: 8px;
+      }
+      .comment-row {
+        display: flex;
+        gap: 8px;
+      }
+      .comment-row input {
+        flex: 1;
+      }
+      .comment-submit-btn {
+        padding: 12px 16px;
+        background: var(--felt);
+        color: white;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .comment-submit-btn:disabled {
+        opacity: 0.5;
+      }
     </style>
   </head>
   <body>
@@ -752,6 +942,9 @@
       </button>
       <button class="tab-btn" onclick="showTab('history')">
         <span class="ico">📋</span>기록
+      </button>
+      <button class="tab-btn" onclick="showTab('gallery')">
+        <span class="ico">📸</span>갤러리
       </button>
       <button class="tab-btn" onclick="showTab('players')">
         <span class="ico">👥</span>선수관리
@@ -859,6 +1052,24 @@
                   max="999" />
               </div>
             </div>
+            <div class="form-group" style="margin-bottom:12px">
+              <label class="form-label">📷 사진 첨부 (선택)</label>
+              <label for="record-photo-input" id="record-photo-label" class="gallery-upload-area" style="padding:14px">
+                <div style="font-size:24px;margin-bottom:4px">📷</div>
+                <div style="font-size:12px;color:var(--text-sub)">탭하여 사진 선택</div>
+              </label>
+              <input
+                type="file"
+                id="record-photo-input"
+                accept="image/*"
+                style="display:none"
+                onchange="handleRecordPhotoSelect(this)" />
+              <img
+                id="record-photo-preview"
+                src=""
+                alt=""
+                style="display:none;width:100%;border-radius:var(--radius-sm);margin-top:8px;max-height:160px;object-fit:cover" />
+            </div>
             <button class="btn-primary" id="submit-btn" onclick="submitMatch()">
               ✅ 전적 등록
             </button>
@@ -883,6 +1094,47 @@
           </button>
         </div>
         <div class="card" id="history-list">
+          <div class="loading">
+            <div class="spinner"></div>
+            불러오는 중...
+          </div>
+        </div>
+      </div>
+
+      <!-- 갤러리 탭 -->
+      <div class="tab-panel" id="tab-gallery">
+        <div id="gallery-upload-form" style="display:none">
+          <div class="section-label">사진 업로드</div>
+          <div class="card">
+            <label for="photo-input" class="gallery-upload-area">
+              <div style="font-size:32px;margin-bottom:6px">📷</div>
+              <div style="font-size:13px;color:var(--text-sub)">탭하여 사진 선택</div>
+            </label>
+            <input
+              type="file"
+              id="photo-input"
+              accept="image/*"
+              style="display:none"
+              onchange="handlePhotoSelect(this)" />
+            <img id="photo-preview" src="" alt="미리보기" />
+            <div class="form-group" style="margin-bottom:12px">
+              <input
+                type="text"
+                id="photo-caption-input"
+                placeholder="사진 설명 입력 (선택)"
+                maxlength="50" />
+            </div>
+            <button
+              class="btn-primary"
+              id="photo-upload-btn"
+              onclick="handlePhotoUpload()"
+              disabled>
+              📤 업로드
+            </button>
+          </div>
+        </div>
+        <div class="section-label" style="margin-top:4px">사진</div>
+        <div class="card" id="gallery-list">
           <div class="loading">
             <div class="spinner"></div>
             불러오는 중...
@@ -924,6 +1176,51 @@
           <div class="loading">
             <div class="spinner"></div>
             불러오는 중...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 사진 상세 오버레이 -->
+    <div class="photo-overlay" id="photo-overlay">
+      <div class="photo-overlay-top">
+        <button class="photo-overlay-close" onclick="closePhoto()">✕</button>
+        <button
+          class="photo-overlay-del"
+          id="photo-delete-btn"
+          onclick="handleDeletePost()">
+          🗑
+        </button>
+      </div>
+      <div class="photo-overlay-img-wrap">
+        <img id="photo-overlay-img" src="" alt="" />
+      </div>
+      <div class="photo-overlay-body">
+        <div
+          class="photo-overlay-caption-text"
+          id="photo-overlay-caption"></div>
+        <div class="comments-section-label">댓글</div>
+        <div id="photo-comments-list"></div>
+        <div class="comment-input-area">
+          <input
+            type="text"
+            id="comment-author-input"
+            class="comment-name-input"
+            placeholder="이름"
+            maxlength="10" />
+          <div class="comment-row">
+            <input
+              type="text"
+              id="comment-content-input"
+              placeholder="댓글을 입력하세요"
+              maxlength="100"
+              onkeydown="if(event.key==='Enter')submitComment()" />
+            <button
+              class="comment-submit-btn"
+              id="comment-submit-btn"
+              onclick="submitComment()">
+              등록
+            </button>
           </div>
         </div>
       </div>
@@ -985,6 +1282,11 @@
 
       let players = [],
         matches = [],
+        posts = [],
+        matchPostMap = {},
+        currentPost = null,
+        photoFile = null,
+        recordPhotoFile = null,
         activeTab = "ranking",
         rankFilter = "all",
         histFilter = "all",
@@ -1103,7 +1405,7 @@
         document
           .querySelectorAll(".tab-btn")
           [
-            ["ranking", "record", "history", "players"].indexOf(tab)
+            ["ranking", "record", "history", "gallery", "players"].indexOf(tab)
           ].classList.add("active");
         renderAll();
       }
@@ -1339,6 +1641,12 @@
             const delBtn = isAdmin
               ? `<button class="del-match-btn" onclick="deleteMatch('${m.id}','${m.winner.name}','${m.loser.name}')">🗑</button>`
               : `<button class="del-match-btn hidden"></button>`;
+            const mp = matchPostMap[m.id];
+            const photoThumb = mp
+              ? `<img src="${mp.image_url}" onclick="openPhoto('${mp.id}')"
+                  style="width:100%;border-radius:var(--radius-sm);margin-top:8px;max-height:200px;object-fit:cover;cursor:pointer"
+                  loading="lazy">`
+              : "";
             return `<div class="match-item" id="match-${m.id}">
       <div class="match-top">
         <div class="match-info">
@@ -1347,6 +1655,7 @@
         </div>
         ${delBtn}
       </div>
+      ${photoThumb}
     </div>`;
           })
           .join("");
@@ -1392,6 +1701,7 @@
         renderRanking();
         if (activeTab === "record") renderRecord();
         if (activeTab === "history") renderHistory();
+        if (activeTab === "gallery") renderGallery();
         if (activeTab === "players") renderPlayers();
       }
 
@@ -1497,21 +1807,34 @@
         }
         const btn = document.getElementById("submit-btn");
         btn.disabled = true;
-        btn.textContent = "저장 중...";
+        btn.textContent = recordPhotoFile ? "사진 업로드 중..." : "저장 중...";
         try {
           const body = { winner_id: wid, loser_id: lid, game_type: gameType };
           if (ws !== "" && ls !== "") {
             body.winner_score = parseInt(ws);
             body.loser_score = parseInt(ls);
           }
-          await api("matches", "POST", body);
-          await loadAll();
-          [
-            "winner-select",
-            "loser-select",
-            "winner-score",
-            "loser-score",
-          ].forEach((id) => (document.getElementById(id).value = ""));
+          const matchRes = await api("matches", "POST", body);
+          const matchId = matchRes[0].id;
+
+          if (recordPhotoFile) {
+            try {
+              const imageUrl = await uploadPhotoStorage(recordPhotoFile);
+              await api("posts", "POST", { image_url: imageUrl, match_id: matchId });
+            } catch (pe) {
+              toast("전적 등록됨 (사진 업로드 실패)");
+            }
+          }
+
+          await Promise.all([loadAll(), loadPosts()]);
+          ["winner-select", "loser-select", "winner-score", "loser-score"].forEach(
+            (id) => (document.getElementById(id).value = ""),
+          );
+          recordPhotoFile = null;
+          document.getElementById("record-photo-input").value = "";
+          document.getElementById("record-photo-preview").style.display = "none";
+          document.getElementById("record-photo-label").innerHTML =
+            '<div style="font-size:24px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--text-sub)">탭하여 사진 선택</div>';
           renderAll();
           const wn = players.find((p) => p.id === wid)?.name;
           toast(`🏆 [${gameType}] ${wn} 승리 등록!`);
@@ -1523,10 +1846,247 @@
         }
       }
 
+      /* 갤러리 */
+      async function loadPosts() {
+        posts = await api(
+          "posts?select=id,image_url,caption,match_id,created_at,comments(count)&order=created_at.desc",
+        );
+        matchPostMap = {};
+        posts.forEach((p) => { if (p.match_id) matchPostMap[p.match_id] = p; });
+      }
+
+      async function uploadPhotoStorage(file) {
+        const ext = file.name.split(".").pop().toLowerCase();
+        const filename = Date.now() + "." + ext;
+        const res = await fetch(
+          `${SB_URL}/storage/v1/object/photos/${filename}`,
+          {
+            method: "POST",
+            headers: {
+              apikey: SB_KEY,
+              Authorization: "Bearer " + SB_KEY,
+              "Content-Type": file.type,
+            },
+            body: file,
+          },
+        );
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        return `${SB_URL}/storage/v1/object/public/${data.Key}`;
+      }
+
+      function handleRecordPhotoSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+        recordPhotoFile = file;
+        const preview = document.getElementById("record-photo-preview");
+        const label = document.getElementById("record-photo-label");
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          preview.src = e.target.result;
+          preview.style.display = "block";
+          label.innerHTML =
+            '<div style="font-size:12px;color:var(--green-mid);font-weight:700">✅ 사진 선택됨 · 탭하여 변경</div>';
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function handlePhotoSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+        photoFile = file;
+        const preview = document.getElementById("photo-preview");
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          preview.src = e.target.result;
+          preview.style.display = "block";
+          document.getElementById("photo-upload-btn").disabled = false;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      async function handlePhotoUpload() {
+        if (!isAdmin) {
+          toast("🔒 관리자만 업로드할 수 있어요");
+          return;
+        }
+        if (!photoFile) {
+          toast("사진을 선택해주세요");
+          return;
+        }
+        const btn = document.getElementById("photo-upload-btn");
+        btn.disabled = true;
+        btn.textContent = "업로드 중...";
+        try {
+          const imageUrl = await uploadPhotoStorage(photoFile);
+          const caption = document
+            .getElementById("photo-caption-input")
+            .value.trim();
+          await api("posts", "POST", {
+            image_url: imageUrl,
+            caption: caption || null,
+          });
+          await loadPosts();
+          photoFile = null;
+          document.getElementById("photo-input").value = "";
+          document.getElementById("photo-preview").style.display = "none";
+          document.getElementById("photo-caption-input").value = "";
+          btn.disabled = true;
+          renderGallery();
+          toast("📸 사진 업로드 완료!");
+        } catch (e) {
+          toast("업로드 실패. Supabase Storage 버킷을 확인해주세요.");
+        } finally {
+          btn.textContent = "📤 업로드";
+        }
+      }
+
+      function openPhoto(id) {
+        currentPost = posts.find((p) => p.id === id);
+        if (!currentPost) return;
+        document.getElementById("photo-overlay-img").src =
+          currentPost.image_url;
+        document.getElementById("photo-overlay-caption").textContent =
+          currentPost.caption || "";
+        document.getElementById("photo-comments-list").innerHTML =
+          '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+        document.getElementById("photo-delete-btn").style.display = isAdmin
+          ? "block"
+          : "none";
+        document.getElementById("photo-overlay").classList.add("show");
+        fetchAndRenderComments();
+      }
+
+      function closePhoto() {
+        document.getElementById("photo-overlay").classList.remove("show");
+        currentPost = null;
+      }
+
+      function handleDeletePost() {
+        if (currentPost) deletePost(currentPost.id);
+      }
+
+      async function deletePost(id) {
+        if (!isAdmin) return;
+        if (!confirm("이 사진을 삭제할까요?")) return;
+        try {
+          await api(`posts?id=eq.${id}`, "DELETE");
+          posts = posts.filter((p) => p.id !== id);
+          closePhoto();
+          renderGallery();
+          toast("🗑 사진 삭제됨");
+        } catch (e) {
+          toast("삭제 실패");
+        }
+      }
+
+      async function fetchAndRenderComments() {
+        if (!currentPost) return;
+        try {
+          const comments = await api(
+            `comments?post_id=eq.${currentPost.id}&select=*&order=created_at.asc`,
+          );
+          renderComments(comments);
+        } catch (e) {
+          document.getElementById("photo-comments-list").innerHTML =
+            '<div class="empty">댓글을 불러올 수 없어요</div>';
+        }
+      }
+
+      function renderComments(comments) {
+        const el = document.getElementById("photo-comments-list");
+        if (!comments || !comments.length) {
+          el.innerHTML =
+            '<div style="padding:16px 0;color:var(--text-sub);font-size:13px;text-align:center">첫 댓글을 남겨보세요!</div>';
+          return;
+        }
+        el.innerHTML = comments
+          .map((c) => {
+            const d = new Date(c.created_at);
+            const ds = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+            const delBtn = isAdmin
+              ? `<button onclick="deleteComment('${c.id}')" style="float:right;background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:0;line-height:1" title="댓글 삭제">🗑</button>`
+              : "";
+            return `<div class="comment-item">
+            ${delBtn}
+            <div class="comment-author">${c.author}</div>
+            <div class="comment-text">${c.content}</div>
+            <div class="comment-time">${ds}</div>
+          </div>`;
+          })
+          .join("");
+      }
+
+      async function deleteComment(id) {
+        if (!isAdmin) return;
+        try {
+          await api(`comments?id=eq.${id}`, "DELETE");
+          await fetchAndRenderComments();
+          toast("댓글 삭제됨");
+        } catch (e) {
+          toast("삭제 실패");
+        }
+      }
+
+      async function submitComment() {
+        if (!currentPost) return;
+        const authorEl = document.getElementById("comment-author-input");
+        const contentEl = document.getElementById("comment-content-input");
+        const author = authorEl.value.trim();
+        const content = contentEl.value.trim();
+        if (!author) {
+          toast("이름을 입력해주세요");
+          return;
+        }
+        if (!content) {
+          toast("댓글을 입력해주세요");
+          return;
+        }
+        const btn = document.getElementById("comment-submit-btn");
+        btn.disabled = true;
+        try {
+          await api("comments", "POST", {
+            post_id: currentPost.id,
+            author,
+            content,
+          });
+          contentEl.value = "";
+          await fetchAndRenderComments();
+          toast("💬 댓글 등록!");
+        } catch (e) {
+          toast("댓글 등록 실패");
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      function renderGallery() {
+        document.getElementById("gallery-upload-form").style.display = isAdmin
+          ? "block"
+          : "none";
+        const el = document.getElementById("gallery-list");
+        if (!posts.length) {
+          el.innerHTML =
+            '<div class="empty"><div class="ico-big">📸</div>아직 사진이 없어요!</div>';
+          return;
+        }
+        el.innerHTML = `<div class="gallery-grid">${posts
+          .map((p) => {
+            const cnt =
+              p.comments && p.comments[0] ? p.comments[0].count : 0;
+            return `<div class="gallery-item" onclick="openPhoto('${p.id}')">
+            <img src="${p.image_url}" alt="" loading="lazy">
+            ${cnt > 0 ? `<div class="gallery-comment-count">💬 ${cnt}</div>` : ""}
+            ${p.caption ? `<div class="gallery-caption">${p.caption}</div>` : ""}
+          </div>`;
+          })
+          .join("")}</div>`;
+      }
+
       async function init() {
         renderAdminUI();
         try {
-          await loadAll();
+          await Promise.all([loadAll(), loadPosts()]);
           renderAll();
         } catch (e) {
           document.getElementById("ranking-list").innerHTML =
