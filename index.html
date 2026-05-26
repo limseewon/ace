@@ -785,13 +785,73 @@
         border-radius: 99px;
       }
 
+      /* 경기 상세 오버레이 */
+      .match-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 300;
+        flex-direction: column;
+      }
+      .match-overlay.show {
+        display: flex;
+      }
+      .match-detail-header {
+        padding: 16px;
+        background: #000;
+        flex-shrink: 0;
+      }
+      .match-detail-meta {
+        font-size: 12px;
+        color: rgba(255,255,255,0.55);
+        margin-bottom: 8px;
+      }
+      .match-detail-players {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .match-detail-winner {
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+      }
+      .match-detail-vs {
+        font-size: 13px;
+        color: rgba(255,255,255,0.4);
+      }
+      .match-detail-loser {
+        font-size: 17px;
+        color: rgba(255,255,255,0.65);
+      }
+      .match-detail-score {
+        margin-left: auto;
+        font-size: 18px;
+        font-weight: 700;
+        color: #4ade80;
+      }
+      .match-detail-photo {
+        flex-shrink: 0;
+        max-height: 220px;
+        overflow: hidden;
+        cursor: pointer;
+        display: none;
+      }
+      .match-detail-photo img {
+        width: 100%;
+        max-height: 220px;
+        object-fit: cover;
+        display: block;
+      }
+
       /* 사진 상세 오버레이 */
       .photo-overlay {
         display: none;
         position: fixed;
         inset: 0;
         background: #000;
-        z-index: 300;
+        z-index: 310;
         flex-direction: column;
       }
       .photo-overlay.show {
@@ -1176,6 +1236,46 @@
           <div class="loading">
             <div class="spinner"></div>
             불러오는 중...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 경기 상세 오버레이 -->
+    <div class="match-overlay" id="match-overlay">
+      <div class="photo-overlay-top">
+        <button class="photo-overlay-close" onclick="closeMatchDetail()">✕</button>
+      </div>
+      <div class="match-detail-header">
+        <div class="match-detail-meta" id="match-detail-meta"></div>
+        <div class="match-detail-players" id="match-detail-players"></div>
+      </div>
+      <div class="match-detail-photo" id="match-detail-photo" onclick="openMatchPhoto()">
+        <img id="match-detail-photo-img" src="" alt="" />
+      </div>
+      <div class="photo-overlay-body">
+        <div class="comments-section-label">댓글</div>
+        <div id="match-comments-list"></div>
+        <div class="comment-input-area">
+          <input
+            type="text"
+            id="match-comment-author"
+            class="comment-name-input"
+            placeholder="이름"
+            maxlength="10" />
+          <div class="comment-row">
+            <input
+              type="text"
+              id="match-comment-content"
+              placeholder="댓글을 입력하세요"
+              maxlength="100"
+              onkeydown="if(event.key==='Enter')submitMatchComment()" />
+            <button
+              class="comment-submit-btn"
+              id="match-comment-submit-btn"
+              onclick="submitMatchComment()">
+              등록
+            </button>
           </div>
         </div>
       </div>
@@ -1639,15 +1739,14 @@
             const d = new Date(m.played_at),
               ds = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
             const delBtn = isAdmin
-              ? `<button class="del-match-btn" onclick="deleteMatch('${m.id}','${m.winner.name}','${m.loser.name}')">🗑</button>`
+              ? `<button class="del-match-btn" onclick="event.stopPropagation();deleteMatch('${m.id}','${m.winner.name}','${m.loser.name}')">🗑</button>`
               : `<button class="del-match-btn hidden"></button>`;
             const mp = matchPostMap[m.id];
             const photoThumb = mp
-              ? `<img src="${mp.image_url}" onclick="openPhoto('${mp.id}')"
-                  style="width:100%;border-radius:var(--radius-sm);margin-top:8px;max-height:200px;object-fit:cover;cursor:pointer"
-                  loading="lazy">`
+              ? `<img src="${mp.image_url}" loading="lazy"
+                  style="width:100%;border-radius:var(--radius-sm);margin-top:8px;max-height:180px;object-fit:cover">`
               : "";
-            return `<div class="match-item" id="match-${m.id}">
+            return `<div class="match-item" id="match-${m.id}" onclick="openMatchDetail('${m.id}')" style="cursor:pointer">
       <div class="match-top">
         <div class="match-info">
           <div class="match-head"><span class="match-winner">${m.winner.name}</span><span class="match-vs">승</span><span class="match-loser">${m.loser.name}</span></div>
@@ -1819,7 +1918,7 @@
 
           if (recordPhotoFile) {
             try {
-              const imageUrl = await uploadPhotoStorage(recordPhotoFile);
+              const imageUrl = await compressImage(recordPhotoFile);
               await api("posts", "POST", { image_url: imageUrl, match_id: matchId });
             } catch (pe) {
               toast("전적 등록됨 (사진 업로드 실패)");
@@ -1855,24 +1954,139 @@
         posts.forEach((p) => { if (p.match_id) matchPostMap[p.match_id] = p; });
       }
 
-      async function uploadPhotoStorage(file) {
-        const ext = file.name.split(".").pop().toLowerCase();
-        const filename = Date.now() + "." + ext;
-        const res = await fetch(
-          `${SB_URL}/storage/v1/object/photos/${filename}`,
-          {
-            method: "POST",
-            headers: {
-              apikey: SB_KEY,
-              Authorization: "Bearer " + SB_KEY,
-              "Content-Type": file.type,
-            },
-            body: file,
-          },
-        );
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-        return `${SB_URL}/storage/v1/object/public/${data.Key}`;
+      let currentMatchId = null;
+
+      function openMatchDetail(matchId) {
+        const m = matches.find((x) => x.id === matchId);
+        if (!m) return;
+        currentMatchId = matchId;
+        const gt = m.game_type || "3구";
+        const d = new Date(m.played_at);
+        const ds = `${d.getFullYear()}.${d.getMonth() + 1}.${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+        document.getElementById("match-detail-meta").textContent =
+          `${gt === "4구" ? "🔵" : "🟢"} ${gt} · ${ds}`;
+        const sb =
+          m.winner_score !== null && m.loser_score !== null
+            ? `<span class="match-detail-score">${m.winner_score} : ${m.loser_score}</span>`
+            : "";
+        document.getElementById("match-detail-players").innerHTML =
+          `<span class="match-detail-winner">${m.winner.name}</span>
+           <span class="match-detail-vs">승</span>
+           <span class="match-detail-loser">${m.loser.name}</span>
+           ${sb}`;
+        const mp = matchPostMap[matchId];
+        const photoWrap = document.getElementById("match-detail-photo");
+        if (mp) {
+          document.getElementById("match-detail-photo-img").src = mp.image_url;
+          photoWrap.style.display = "block";
+        } else {
+          photoWrap.style.display = "none";
+        }
+        document.getElementById("match-comments-list").innerHTML =
+          '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
+        document.getElementById("match-overlay").classList.add("show");
+        fetchAndRenderMatchComments();
+      }
+
+      function closeMatchDetail() {
+        document.getElementById("match-overlay").classList.remove("show");
+        currentMatchId = null;
+      }
+
+      function openMatchPhoto() {
+        const mp = matchPostMap[currentMatchId];
+        if (mp) openPhoto(mp.id);
+      }
+
+      async function fetchAndRenderMatchComments() {
+        if (!currentMatchId) return;
+        try {
+          const comments = await api(
+            `comments?match_id=eq.${currentMatchId}&select=*&order=created_at.asc`,
+          );
+          renderMatchComments(comments);
+        } catch (e) {
+          document.getElementById("match-comments-list").innerHTML =
+            '<div class="empty">댓글을 불러올 수 없어요</div>';
+        }
+      }
+
+      function renderMatchComments(comments) {
+        const el = document.getElementById("match-comments-list");
+        if (!comments || !comments.length) {
+          el.innerHTML =
+            '<div style="padding:16px 0;color:var(--text-sub);font-size:13px;text-align:center">첫 댓글을 남겨보세요!</div>';
+          return;
+        }
+        el.innerHTML = comments
+          .map((c) => {
+            const d = new Date(c.created_at);
+            const ds = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+            const delBtn = isAdmin
+              ? `<button onclick="deleteMatchComment('${c.id}')" style="float:right;background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:0;line-height:1">🗑</button>`
+              : "";
+            return `<div class="comment-item">
+              ${delBtn}
+              <div class="comment-author">${c.author}</div>
+              <div class="comment-text">${c.content}</div>
+              <div class="comment-time">${ds}</div>
+            </div>`;
+          })
+          .join("");
+      }
+
+      async function submitMatchComment() {
+        if (!currentMatchId) return;
+        const authorEl = document.getElementById("match-comment-author");
+        const contentEl = document.getElementById("match-comment-content");
+        const author = authorEl.value.trim();
+        const content = contentEl.value.trim();
+        if (!author) { toast("이름을 입력해주세요"); return; }
+        if (!content) { toast("댓글을 입력해주세요"); return; }
+        const btn = document.getElementById("match-comment-submit-btn");
+        btn.disabled = true;
+        try {
+          await api("comments", "POST", { match_id: currentMatchId, author, content });
+          contentEl.value = "";
+          await fetchAndRenderMatchComments();
+          toast("💬 댓글 등록!");
+        } catch (e) {
+          toast("댓글 등록 실패");
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      async function deleteMatchComment(id) {
+        if (!isAdmin) return;
+        try {
+          await api(`comments?id=eq.${id}`, "DELETE");
+          await fetchAndRenderMatchComments();
+          toast("댓글 삭제됨");
+        } catch (e) {
+          toast("삭제 실패");
+        }
+      }
+
+      function compressImage(file) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          const url = URL.createObjectURL(file);
+          img.onload = () => {
+            URL.revokeObjectURL(url);
+            const maxSize = 900;
+            let w = img.width, h = img.height;
+            if (w > maxSize || h > maxSize) {
+              if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+              else { w = Math.round(w * maxSize / h); h = maxSize; }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = w; canvas.height = h;
+            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL("image/jpeg", 0.75));
+          };
+          img.src = url;
+        });
       }
 
       function handleRecordPhotoSelect(input) {
@@ -1918,7 +2132,7 @@
         btn.disabled = true;
         btn.textContent = "업로드 중...";
         try {
-          const imageUrl = await uploadPhotoStorage(photoFile);
+          const imageUrl = await compressImage(photoFile);
           const caption = document
             .getElementById("photo-caption-input")
             .value.trim();
@@ -1935,7 +2149,7 @@
           renderGallery();
           toast("📸 사진 업로드 완료!");
         } catch (e) {
-          toast("업로드 실패. Supabase Storage 버킷을 확인해주세요.");
+          toast("업로드 실패. 다시 시도해주세요.");
         } finally {
           btn.textContent = "📤 업로드";
         }
