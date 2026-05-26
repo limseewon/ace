@@ -1245,6 +1245,26 @@
     <div class="match-overlay" id="match-overlay">
       <div class="photo-overlay-top">
         <button class="photo-overlay-close" onclick="closeMatchDetail()">✕</button>
+        <div id="match-admin-btns" style="display:none;margin-left:auto;display:flex;gap:6px">
+          <button
+            id="match-photo-btn"
+            onclick="document.getElementById('match-photo-input').click()"
+            style="background:rgba(255,255,255,0.15);border:none;color:white;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer">
+            📷 사진
+          </button>
+          <button
+            id="match-photo-del-btn"
+            onclick="removeMatchPhoto()"
+            style="display:none;background:rgba(255,80,80,0.3);border:none;color:white;padding:6px 10px;border-radius:8px;font-size:13px;cursor:pointer">
+            🗑
+          </button>
+        </div>
+        <input
+          type="file"
+          id="match-photo-input"
+          accept="image/*"
+          style="display:none"
+          onchange="addMatchPhoto(this)" />
       </div>
       <div class="match-detail-header">
         <div class="match-detail-meta" id="match-detail-meta"></div>
@@ -1281,48 +1301,23 @@
       </div>
     </div>
 
-    <!-- 사진 상세 오버레이 -->
+    <!-- 사진 전체화면 오버레이 (갤러리용) -->
     <div class="photo-overlay" id="photo-overlay">
       <div class="photo-overlay-top">
         <button class="photo-overlay-close" onclick="closePhoto()">✕</button>
         <button
           class="photo-overlay-del"
           id="photo-delete-btn"
-          onclick="handleDeletePost()">
+          onclick="handleDeletePost()"
+          style="display:none">
           🗑
         </button>
       </div>
-      <div class="photo-overlay-img-wrap">
-        <img id="photo-overlay-img" src="" alt="" />
-      </div>
-      <div class="photo-overlay-body">
-        <div
-          class="photo-overlay-caption-text"
-          id="photo-overlay-caption"></div>
-        <div class="comments-section-label">댓글</div>
-        <div id="photo-comments-list"></div>
-        <div class="comment-input-area">
-          <input
-            type="text"
-            id="comment-author-input"
-            class="comment-name-input"
-            placeholder="이름"
-            maxlength="10" />
-          <div class="comment-row">
-            <input
-              type="text"
-              id="comment-content-input"
-              placeholder="댓글을 입력하세요"
-              maxlength="100"
-              onkeydown="if(event.key==='Enter')submitComment()" />
-            <button
-              class="comment-submit-btn"
-              id="comment-submit-btn"
-              onclick="submitComment()">
-              등록
-            </button>
-          </div>
+      <div style="flex:1;display:flex;flex-direction:column;overflow-y:auto;background:#000">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:8px">
+          <img id="photo-overlay-img" src="" alt="" style="max-width:100%;max-height:100%;object-fit:contain" />
         </div>
+        <div id="photo-overlay-caption" style="padding:12px 16px 20px;color:rgba(255,255,255,0.8);font-size:14px;text-align:center"></div>
       </div>
     </div>
 
@@ -1378,7 +1373,14 @@
         apikey: SB_KEY,
         Authorization: "Bearer " + SB_KEY,
         Prefer: "return=representation",
+        "X-HTTP-Method-Override": "",
       };
+      function getHeaders(method) {
+        const h = { ...H };
+        delete h["X-HTTP-Method-Override"];
+        if (method === "PATCH") h["Prefer"] = "return=representation";
+        return h;
+      }
 
       let players = [],
         matches = [],
@@ -1401,7 +1403,10 @@
           headers: H,
           body: body ? JSON.stringify(body) : null,
         });
-        if (!r.ok) throw new Error(await r.text());
+        if (!r.ok) {
+          const errText = await r.text();
+          throw new Error(errText);
+        }
         const t = await r.text();
         return t ? JSON.parse(t) : null;
       }
@@ -1956,24 +1961,149 @@
 
       let currentMatchId = null;
 
+      /* ── 이미지 압축 (400px / 50%) ── */
+      function compressImage(file) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          const url = URL.createObjectURL(file);
+          img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("이미지 로드 실패")); };
+          img.onload = () => {
+            URL.revokeObjectURL(url);
+            const maxSize = 400;
+            let w = img.width, h = img.height;
+            if (w > maxSize || h > maxSize) {
+              if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+              else { w = Math.round(w * maxSize / h); h = maxSize; }
+            }
+            const c = document.createElement("canvas");
+            c.width = w; c.height = h;
+            c.getContext("2d").drawImage(img, 0, 0, w, h);
+            resolve(c.toDataURL("image/jpeg", 0.5));
+          };
+          img.src = url;
+        });
+      }
+
+      /* ── 갤러리 ── */
+      async function loadPosts() {
+        try {
+          posts = await api("posts?select=id,image_url,caption,match_id,created_at&order=created_at.desc");
+          matchPostMap = {};
+          posts.forEach((p) => { if (p.match_id) matchPostMap[p.match_id] = p; });
+        } catch(e) { posts = []; matchPostMap = {}; }
+      }
+
+      function renderGallery() {
+        document.getElementById("gallery-upload-form").style.display = isAdmin ? "block" : "none";
+        const el = document.getElementById("gallery-list");
+        if (!posts.length) {
+          el.innerHTML = '<div class="empty"><div class="ico-big">📸</div>아직 사진이 없어요!</div>';
+          return;
+        }
+        el.innerHTML = `<div class="gallery-grid">${posts.map((p) => {
+          const adminBtn = isAdmin
+            ? `<button onclick="event.stopPropagation();deletePostById('${p.id}')" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.5);border:none;color:white;border-radius:50%;width:28px;height:28px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">🗑</button>`
+            : "";
+          const matchLink = p.match_id
+            ? `<div style="position:absolute;bottom:${p.caption ? "28px" : "0"};left:0;right:0;background:rgba(0,0,0,0.45);color:white;font-size:10px;padding:3px 6px;text-align:center">경기 기록 있음</div>`
+            : "";
+          return `<div class="gallery-item" onclick="openPhoto('${p.id}')" style="position:relative">
+            <img src="${p.image_url}" alt="" loading="lazy">
+            ${matchLink}
+            ${adminBtn}
+            ${p.caption ? `<div class="gallery-caption">${p.caption}</div>` : ""}
+          </div>`;
+        }).join("")}</div>`;
+      }
+
+      function openPhoto(id) {
+        currentPost = posts.find((p) => p.id === id);
+        if (!currentPost) return;
+        document.getElementById("photo-overlay-img").src = currentPost.image_url;
+        document.getElementById("photo-overlay-caption").textContent = currentPost.caption || "";
+        document.getElementById("photo-delete-btn").style.display = isAdmin ? "block" : "none";
+        document.getElementById("photo-overlay").classList.add("show");
+      }
+
+      function closePhoto() {
+        document.getElementById("photo-overlay").classList.remove("show");
+        currentPost = null;
+      }
+
+      function handleDeletePost() {
+        if (currentPost) deletePostById(currentPost.id);
+      }
+
+      async function deletePostById(id) {
+        if (!isAdmin) return;
+        if (!confirm("이 사진을 삭제할까요?")) return;
+        try {
+          await api(`posts?id=eq.${id}`, "DELETE");
+          posts = posts.filter((p) => p.id !== id);
+          matchPostMap = {};
+          posts.forEach((p) => { if (p.match_id) matchPostMap[p.match_id] = p; });
+          closePhoto();
+          renderGallery();
+          renderHistory();
+          toast("🗑 사진 삭제됨");
+        } catch (e) { toast("삭제 실패"); }
+      }
+
+      /* ── 갤러리 업로드 ── */
+      function handlePhotoSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+        photoFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          document.getElementById("photo-preview").src = e.target.result;
+          document.getElementById("photo-preview").style.display = "block";
+          document.getElementById("photo-upload-btn").disabled = false;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      async function handlePhotoUpload() {
+        if (!isAdmin) { toast("🔒 관리자만 업로드할 수 있어요"); return; }
+        if (!photoFile) { toast("사진을 선택해주세요"); return; }
+        const btn = document.getElementById("photo-upload-btn");
+        btn.disabled = true;
+        btn.textContent = "업로드 중...";
+        try {
+          const imageUrl = await compressImage(photoFile);
+          const caption = document.getElementById("photo-caption-input").value.trim();
+          await api("posts", "POST", { image_url: imageUrl, caption: caption || null });
+          await loadPosts();
+          photoFile = null;
+          document.getElementById("photo-input").value = "";
+          document.getElementById("photo-preview").style.display = "none";
+          document.getElementById("photo-caption-input").value = "";
+          renderGallery();
+          toast("📸 사진 업로드 완료!");
+        } catch (e) {
+          toast("업로드 실패: " + e.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "📤 업로드";
+        }
+      }
+
+      /* ── 경기 상세 ── */
       function openMatchDetail(matchId) {
         const m = matches.find((x) => x.id === matchId);
         if (!m) return;
         currentMatchId = matchId;
         const gt = m.game_type || "3구";
         const d = new Date(m.played_at);
-        const ds = `${d.getFullYear()}.${d.getMonth() + 1}.${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-        document.getElementById("match-detail-meta").textContent =
-          `${gt === "4구" ? "🔵" : "🟢"} ${gt} · ${ds}`;
-        const sb =
-          m.winner_score !== null && m.loser_score !== null
-            ? `<span class="match-detail-score">${m.winner_score} : ${m.loser_score}</span>`
-            : "";
+        const ds = `${d.getFullYear()}.${d.getMonth()+1}.${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+        document.getElementById("match-detail-meta").textContent = `${gt === "4구" ? "🔵" : "🟢"} ${gt} · ${ds}`;
+        const sb = m.winner_score !== null && m.loser_score !== null
+          ? `<span class="match-detail-score">${m.winner_score} : ${m.loser_score}</span>` : "";
         document.getElementById("match-detail-players").innerHTML =
           `<span class="match-detail-winner">${m.winner.name}</span>
            <span class="match-detail-vs">승</span>
-           <span class="match-detail-loser">${m.loser.name}</span>
-           ${sb}`;
+           <span class="match-detail-loser">${m.loser.name}</span>${sb}`;
+
         const mp = matchPostMap[matchId];
         const photoWrap = document.getElementById("match-detail-photo");
         if (mp) {
@@ -1982,6 +2112,17 @@
         } else {
           photoWrap.style.display = "none";
         }
+
+        const adminBtns = document.getElementById("match-admin-btns");
+        const photoDelBtn = document.getElementById("match-photo-del-btn");
+        if (isAdmin) {
+          adminBtns.style.display = "flex";
+          document.getElementById("match-photo-btn").textContent = mp ? "📷 사진 변경" : "📷 사진 추가";
+          photoDelBtn.style.display = mp ? "block" : "none";
+        } else {
+          adminBtns.style.display = "none";
+        }
+
         document.getElementById("match-comments-list").innerHTML =
           '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
         document.getElementById("match-overlay").classList.add("show");
@@ -1998,63 +2139,95 @@
         if (mp) openPhoto(mp.id);
       }
 
+      async function addMatchPhoto(input) {
+        const file = input.files[0];
+        if (!file || !currentMatchId) return;
+        const btn = document.getElementById("match-photo-btn");
+        btn.textContent = "업로드 중...";
+        try {
+          const imageUrl = await compressImage(file);
+          const mp = matchPostMap[currentMatchId];
+          if (mp) {
+            await api(`posts?id=eq.${mp.id}`, "PATCH", { image_url: imageUrl });
+          } else {
+            await api("posts", "POST", { image_url: imageUrl, match_id: currentMatchId });
+          }
+          await loadPosts();
+          const newMp = matchPostMap[currentMatchId];
+          if (newMp) {
+            document.getElementById("match-detail-photo-img").src = newMp.image_url;
+            document.getElementById("match-detail-photo").style.display = "block";
+            document.getElementById("match-photo-btn").textContent = "📷 사진 변경";
+            document.getElementById("match-photo-del-btn").style.display = "block";
+          }
+          renderGallery();
+          renderHistory();
+          toast("📸 사진 업로드 완료!");
+        } catch (e) {
+          toast("업로드 실패: " + e.message);
+        } finally {
+          input.value = "";
+        }
+      }
+
+      async function removeMatchPhoto() {
+        if (!currentMatchId || !isAdmin) return;
+        const mp = matchPostMap[currentMatchId];
+        if (!mp || !confirm("이 사진을 삭제할까요?")) return;
+        try {
+          await api(`posts?id=eq.${mp.id}`, "DELETE");
+          await loadPosts();
+          document.getElementById("match-detail-photo").style.display = "none";
+          document.getElementById("match-photo-btn").textContent = "📷 사진 추가";
+          document.getElementById("match-photo-del-btn").style.display = "none";
+          renderGallery();
+          renderHistory();
+          toast("🗑 사진 삭제됨");
+        } catch (e) { toast("삭제 실패"); }
+      }
+
       async function fetchAndRenderMatchComments() {
         if (!currentMatchId) return;
         try {
-          const comments = await api(
-            `comments?match_id=eq.${currentMatchId}&select=*&order=created_at.asc`,
-          );
+          const comments = await api(`comments?match_id=eq.${currentMatchId}&select=*&order=created_at.asc`);
           renderMatchComments(comments);
         } catch (e) {
-          document.getElementById("match-comments-list").innerHTML =
-            '<div class="empty">댓글을 불러올 수 없어요</div>';
+          document.getElementById("match-comments-list").innerHTML = '<div class="empty">댓글을 불러올 수 없어요</div>';
         }
       }
 
       function renderMatchComments(comments) {
         const el = document.getElementById("match-comments-list");
         if (!comments || !comments.length) {
-          el.innerHTML =
-            '<div style="padding:16px 0;color:var(--text-sub);font-size:13px;text-align:center">첫 댓글을 남겨보세요!</div>';
+          el.innerHTML = '<div style="padding:16px 0;color:var(--text-sub);font-size:13px;text-align:center">첫 댓글을 남겨보세요!</div>';
           return;
         }
-        el.innerHTML = comments
-          .map((c) => {
-            const d = new Date(c.created_at);
-            const ds = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-            const delBtn = isAdmin
-              ? `<button onclick="deleteMatchComment('${c.id}')" style="float:right;background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:0;line-height:1">🗑</button>`
-              : "";
-            return `<div class="comment-item">
-              ${delBtn}
-              <div class="comment-author">${c.author}</div>
-              <div class="comment-text">${c.content}</div>
-              <div class="comment-time">${ds}</div>
-            </div>`;
-          })
-          .join("");
+        el.innerHTML = comments.map((c) => {
+          const d = new Date(c.created_at);
+          const ds = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+          const delBtn = isAdmin
+            ? `<button onclick="deleteMatchComment('${c.id}')" style="float:right;background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:0;line-height:1">🗑</button>`
+            : "";
+          return `<div class="comment-item">${delBtn}<div class="comment-author">${c.author}</div><div class="comment-text">${c.content}</div><div class="comment-time">${ds}</div></div>`;
+        }).join("");
       }
 
       async function submitMatchComment() {
         if (!currentMatchId) return;
-        const authorEl = document.getElementById("match-comment-author");
-        const contentEl = document.getElementById("match-comment-content");
-        const author = authorEl.value.trim();
-        const content = contentEl.value.trim();
+        const author = document.getElementById("match-comment-author").value.trim();
+        const content = document.getElementById("match-comment-content").value.trim();
         if (!author) { toast("이름을 입력해주세요"); return; }
         if (!content) { toast("댓글을 입력해주세요"); return; }
         const btn = document.getElementById("match-comment-submit-btn");
         btn.disabled = true;
         try {
           await api("comments", "POST", { match_id: currentMatchId, author, content });
-          contentEl.value = "";
+          document.getElementById("match-comment-content").value = "";
           await fetchAndRenderMatchComments();
           toast("💬 댓글 등록!");
         } catch (e) {
-          toast("댓글 등록 실패");
-        } finally {
-          btn.disabled = false;
-        }
+          toast("댓글 등록 실패: " + e.message);
+        } finally { btn.disabled = false; }
       }
 
       async function deleteMatchComment(id) {
@@ -2063,238 +2236,22 @@
           await api(`comments?id=eq.${id}`, "DELETE");
           await fetchAndRenderMatchComments();
           toast("댓글 삭제됨");
-        } catch (e) {
-          toast("삭제 실패");
-        }
+        } catch (e) { toast("삭제 실패"); }
       }
 
-      function compressImage(file) {
-        return new Promise((resolve) => {
-          const img = new Image();
-          const url = URL.createObjectURL(file);
-          img.onload = () => {
-            URL.revokeObjectURL(url);
-            const maxSize = 900;
-            let w = img.width, h = img.height;
-            if (w > maxSize || h > maxSize) {
-              if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-              else { w = Math.round(w * maxSize / h); h = maxSize; }
-            }
-            const canvas = document.createElement("canvas");
-            canvas.width = w; canvas.height = h;
-            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL("image/jpeg", 0.75));
-          };
-          img.src = url;
-        });
-      }
-
+      /* ── 전적입력 사진 ── */
       function handleRecordPhotoSelect(input) {
         const file = input.files[0];
         if (!file) return;
         recordPhotoFile = file;
-        const preview = document.getElementById("record-photo-preview");
-        const label = document.getElementById("record-photo-label");
         const reader = new FileReader();
         reader.onload = (e) => {
-          preview.src = e.target.result;
-          preview.style.display = "block";
-          label.innerHTML =
+          document.getElementById("record-photo-preview").src = e.target.result;
+          document.getElementById("record-photo-preview").style.display = "block";
+          document.getElementById("record-photo-label").innerHTML =
             '<div style="font-size:12px;color:var(--green-mid);font-weight:700">✅ 사진 선택됨 · 탭하여 변경</div>';
         };
         reader.readAsDataURL(file);
-      }
-
-      function handlePhotoSelect(input) {
-        const file = input.files[0];
-        if (!file) return;
-        photoFile = file;
-        const preview = document.getElementById("photo-preview");
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          preview.src = e.target.result;
-          preview.style.display = "block";
-          document.getElementById("photo-upload-btn").disabled = false;
-        };
-        reader.readAsDataURL(file);
-      }
-
-      async function handlePhotoUpload() {
-        if (!isAdmin) {
-          toast("🔒 관리자만 업로드할 수 있어요");
-          return;
-        }
-        if (!photoFile) {
-          toast("사진을 선택해주세요");
-          return;
-        }
-        const btn = document.getElementById("photo-upload-btn");
-        btn.disabled = true;
-        btn.textContent = "업로드 중...";
-        try {
-          const imageUrl = await compressImage(photoFile);
-          const caption = document
-            .getElementById("photo-caption-input")
-            .value.trim();
-          await api("posts", "POST", {
-            image_url: imageUrl,
-            caption: caption || null,
-          });
-          await loadPosts();
-          photoFile = null;
-          document.getElementById("photo-input").value = "";
-          document.getElementById("photo-preview").style.display = "none";
-          document.getElementById("photo-caption-input").value = "";
-          btn.disabled = true;
-          renderGallery();
-          toast("📸 사진 업로드 완료!");
-        } catch (e) {
-          toast("업로드 실패. 다시 시도해주세요.");
-        } finally {
-          btn.textContent = "📤 업로드";
-        }
-      }
-
-      function openPhoto(id) {
-        currentPost = posts.find((p) => p.id === id);
-        if (!currentPost) return;
-        document.getElementById("photo-overlay-img").src =
-          currentPost.image_url;
-        document.getElementById("photo-overlay-caption").textContent =
-          currentPost.caption || "";
-        document.getElementById("photo-comments-list").innerHTML =
-          '<div class="loading"><div class="spinner"></div>불러오는 중...</div>';
-        document.getElementById("photo-delete-btn").style.display = isAdmin
-          ? "block"
-          : "none";
-        document.getElementById("photo-overlay").classList.add("show");
-        fetchAndRenderComments();
-      }
-
-      function closePhoto() {
-        document.getElementById("photo-overlay").classList.remove("show");
-        currentPost = null;
-      }
-
-      function handleDeletePost() {
-        if (currentPost) deletePost(currentPost.id);
-      }
-
-      async function deletePost(id) {
-        if (!isAdmin) return;
-        if (!confirm("이 사진을 삭제할까요?")) return;
-        try {
-          await api(`posts?id=eq.${id}`, "DELETE");
-          posts = posts.filter((p) => p.id !== id);
-          closePhoto();
-          renderGallery();
-          toast("🗑 사진 삭제됨");
-        } catch (e) {
-          toast("삭제 실패");
-        }
-      }
-
-      async function fetchAndRenderComments() {
-        if (!currentPost) return;
-        try {
-          const comments = await api(
-            `comments?post_id=eq.${currentPost.id}&select=*&order=created_at.asc`,
-          );
-          renderComments(comments);
-        } catch (e) {
-          document.getElementById("photo-comments-list").innerHTML =
-            '<div class="empty">댓글을 불러올 수 없어요</div>';
-        }
-      }
-
-      function renderComments(comments) {
-        const el = document.getElementById("photo-comments-list");
-        if (!comments || !comments.length) {
-          el.innerHTML =
-            '<div style="padding:16px 0;color:var(--text-sub);font-size:13px;text-align:center">첫 댓글을 남겨보세요!</div>';
-          return;
-        }
-        el.innerHTML = comments
-          .map((c) => {
-            const d = new Date(c.created_at);
-            const ds = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-            const delBtn = isAdmin
-              ? `<button onclick="deleteComment('${c.id}')" style="float:right;background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:0;line-height:1" title="댓글 삭제">🗑</button>`
-              : "";
-            return `<div class="comment-item">
-            ${delBtn}
-            <div class="comment-author">${c.author}</div>
-            <div class="comment-text">${c.content}</div>
-            <div class="comment-time">${ds}</div>
-          </div>`;
-          })
-          .join("");
-      }
-
-      async function deleteComment(id) {
-        if (!isAdmin) return;
-        try {
-          await api(`comments?id=eq.${id}`, "DELETE");
-          await fetchAndRenderComments();
-          toast("댓글 삭제됨");
-        } catch (e) {
-          toast("삭제 실패");
-        }
-      }
-
-      async function submitComment() {
-        if (!currentPost) return;
-        const authorEl = document.getElementById("comment-author-input");
-        const contentEl = document.getElementById("comment-content-input");
-        const author = authorEl.value.trim();
-        const content = contentEl.value.trim();
-        if (!author) {
-          toast("이름을 입력해주세요");
-          return;
-        }
-        if (!content) {
-          toast("댓글을 입력해주세요");
-          return;
-        }
-        const btn = document.getElementById("comment-submit-btn");
-        btn.disabled = true;
-        try {
-          await api("comments", "POST", {
-            post_id: currentPost.id,
-            author,
-            content,
-          });
-          contentEl.value = "";
-          await fetchAndRenderComments();
-          toast("💬 댓글 등록!");
-        } catch (e) {
-          toast("댓글 등록 실패");
-        } finally {
-          btn.disabled = false;
-        }
-      }
-
-      function renderGallery() {
-        document.getElementById("gallery-upload-form").style.display = isAdmin
-          ? "block"
-          : "none";
-        const el = document.getElementById("gallery-list");
-        if (!posts.length) {
-          el.innerHTML =
-            '<div class="empty"><div class="ico-big">📸</div>아직 사진이 없어요!</div>';
-          return;
-        }
-        el.innerHTML = `<div class="gallery-grid">${posts
-          .map((p) => {
-            const cnt =
-              p.comments && p.comments[0] ? p.comments[0].count : 0;
-            return `<div class="gallery-item" onclick="openPhoto('${p.id}')">
-            <img src="${p.image_url}" alt="" loading="lazy">
-            ${cnt > 0 ? `<div class="gallery-comment-count">💬 ${cnt}</div>` : ""}
-            ${p.caption ? `<div class="gallery-caption">${p.caption}</div>` : ""}
-          </div>`;
-          })
-          .join("")}</div>`;
       }
 
       async function init() {
